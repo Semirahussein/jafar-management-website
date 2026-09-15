@@ -1,5 +1,12 @@
 import Link from "next/link";
 import "./home.css";
+export const metadata = {
+  title: "JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER",
+  description: "Empowering minds through Islamic education and Quranic teachings.",
+  keywords: "Islamic education, Quranic studies, JAFARU TOYAR, faith, knowledge, character development",
+  author: "JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER"
+};
+
 export default function HomePage() {
   return (
     <main>
@@ -193,6 +200,7 @@ export default function HomePage() {
       <p>Nurturing faith, knowledge, character, and a lifelong connection
               with the Quran.</p>
               </div>
+              <div className="footer-grid">
  <div>
     <h4>Quick Links</h4>
     <ul>
@@ -228,6 +236,7 @@ export default function HomePage() {
         <li><Link href="https://twitter.com/jafarutoyar" target="_blank">Twitter</Link></li>
         <li><Link href="https://www.instagram.com/jafarutoyar" target="_blank">Instagram</Link></li>
       </ul>
+    </div>
     </div>
 
     <div className="copyright">
