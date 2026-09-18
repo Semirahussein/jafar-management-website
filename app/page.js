@@ -10,26 +10,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <main>
-      <nav className="navbar">
-        <div className="container nav-container">
-          <Link href="/" className="logo">
-          <span className="logo-icon">☪️</span>
-          <span>JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER </span>
-</Link>
-<div className="nav-links">
-  <Link href="/">HOME</Link>
-   <Link href="/about">ABOUT US</Link>
-    <Link href="/programs">PROGRAMS</Link> 
-    <Link href="/admission">ADMISSION</Link> 
-    <Link href="/gallery">GALLERY</Link>
-     <Link href="/news">NEWS</Link>
-     <Link href="/contact">CONTACT US</Link>
-</div>
-<Link href="/admission" className="apply-button">APPLY NOW</Link>
-      </div>
-      </nav>
-
-      <section className="hero">
+            <section className="hero">
         <div className="hero-overlay"></div>
         <div className="container hero-content">
           <p className="hero-tag">Welcome to JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER</p>
