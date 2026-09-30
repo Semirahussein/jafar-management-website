@@ -46,10 +46,10 @@ export default function Navbar() {
 
       {/* APPLY BUTTON */}
       <Link
-        href="/apply"
+        href="/management/login"
         className="navbar-apply"
       >
-        Apply Now
+        LOGIN
       </Link>
 
 

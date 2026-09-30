@@ -113,9 +113,29 @@ a {
 }
 
 .navbar-links a:hover {
+  color: #e9ac43;
+}
+
+.navbar-links a.active {
   color: #f59e0b;
 }
 
+.navbar-links a.active::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  bottom: -8px;
+
+  height: 2px;
+
+  background: #f59e0b;
+
+  border-radius: 2px;
+}
 
 /* APPLY BUTTON */
 

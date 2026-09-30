@@ -19,7 +19,7 @@ export default function HomePage() {
 <div className="hero-buttons">
   <Link href="/about" className="primary-button">LEARN MORE
   </Link>
-  <Link href="/admission" className="secondary-button">APPLY NOW</Link>
+  <Link href="/management/login" className="secondary-button">LOGIN</Link>
         </div>
         </div>
       </section>
