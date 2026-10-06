@@ -1,17 +1,23 @@
 "use client";
-import { useState, useEffect} from "react";
+
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import "./dashboard.css";
 
 
-function getTodayAttendance() {
-  if (typeof window === "undefined") {
-    return null;
-  }
+// =====================================================
+// GET TODAY'S ATTENDANCE
+// =====================================================
 
-  const savedAttendance =
-    localStorage.getItem("todayAttendance");
+function subscribeToLocalStorage(callback) {
+  window.addEventListener("storage", callback);
 
+  return () => {
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getTodayAttendance(savedAttendance) {
   if (!savedAttendance) {
     return null;
   }
@@ -23,15 +29,48 @@ function getTodayAttendance() {
       .toISOString()
       .split("T")[0];
 
+    // Only use attendance recorded today
     if (data.date === today) {
       return data;
     }
 
     return null;
+
   } catch {
     return null;
   }
 }
+
+function getLatestQuranProgress(savedProgress) {
+  if (!savedProgress) {
+    return {};
+  }
+
+  try {
+    const records = JSON.parse(savedProgress);
+
+    if (!Array.isArray(records)) {
+      throw new Error("Saved Quran progress must be an array.");
+    }
+
+    return records.reduce((latestByStudent, record) => {
+      if (
+        record &&
+        record.studentId !== undefined &&
+        record.surah &&
+        record.ayahTo
+      ) {
+        latestByStudent[record.studentId] = record;
+      }
+
+      return latestByStudent;
+    }, {});
+  } catch (error) {
+    console.error("Unable to load saved Quran progress.", error);
+    return {};
+  }
+}
+
 
 export default function TeacherDashboard() {
 
@@ -51,83 +90,88 @@ export default function TeacherDashboard() {
   // Later this will come from the backend.
   // =====================================================
 
-  const students = [
+  const defaultStudents = [
     {
       id: 1,
-      name: "Ahmed Abdullah",
-      attendance: "Present",
-      progress: "Al-Baqarah",
+      name: "Aisha Ahmed",
     },
     {
       id: 2,
-      name: "Fatima Ali",
-      attendance: "Present",
-      progress: "An-Nas",
+      name: "Maryam Ali",
     },
     {
       id: 3,
-      name: "Yusuf Ibrahim",
-      attendance: "Absent",
-      progress: "Al-Falaq",
+      name: "Yusuf Mohammed",
     },
     {
       id: 4,
-      name: "Maryam Hassan",
-      attendance: "Present",
-      progress: "Al-Ikhlas",
+      name: "Fatima Hassan",
+    },
+    {
+      id: 5,
+      name: "Abdullah Omar",
     },
   ];
 
-  const dashboardStudents = attendance
-  ? attendance.students
-  : students;
 
-  const [attendance, setAttendance] = useState(() => {
-    if (typeof window === "undefined") return null;
+  // =====================================================
+  // TODAY'S ATTENDANCE
+  // =====================================================
 
-    const savedAttendance = localStorage.getItem("todayAttendance");
-    if (!savedAttendance) return null;
+  const savedAttendance = useSyncExternalStore(
+    subscribeToLocalStorage,
+    () => window.localStorage.getItem("todayAttendance"),
+    () => null
+  );
+  const savedProgress = useSyncExternalStore(
+    subscribeToLocalStorage,
+    () => window.localStorage.getItem("quranProgress"),
+    () => null
+  );
+  const attendance = getTodayAttendance(savedAttendance);
+  const latestProgress = getLatestQuranProgress(savedProgress);
 
-    try {
-      const data = JSON.parse(savedAttendance);
-      const today = new Date().toISOString().split("T")[0];
-      return data.date === today ? data : null;
-    } catch {
-      return null;
-    }
-  });
 
   // =====================================================
   // ATTENDANCE STATUS
-  //
-  // false = teacher has NOT taken attendance today
-  // true  = teacher HAS taken attendance today
-  //
-  // Later the backend will provide this value.
   // =====================================================
 
-const attendanceTaken = attendance !== null;
+  const attendanceTaken = attendance !== null;
+
 
   // =====================================================
   // STUDENT COUNTS
   // =====================================================
 
   const totalStudents = attendance
-  ? attendance.students.length
-  : students.length;
+    ? attendance.students.length
+    : defaultStudents.length;
 
-const presentStudents = attendance
-  ? attendance.present
-  : 0;
+  const presentStudents = attendance
+    ? attendance.present
+    : 0;
 
-const absentStudents = attendance
-  ? attendance.absent
-  : 0;
+  const absentStudents = attendance
+    ? attendance.absent
+    : 0;
 
-const lateStudents = attendance
-  ? attendance.late
-  : 0;
+  const lateStudents = attendance
+    ? attendance.late
+    : 0;
 
+
+  // =====================================================
+  // STUDENTS TO DISPLAY
+  // =====================================================
+
+  const students = attendance
+    ? attendance.students
+    : defaultStudents;
+
+
+  // =====================================================
+  // DASHBOARD
+  // =====================================================
 
   return (
 
@@ -251,7 +295,6 @@ const lateStudents = attendance
         ================================================= */}
 
         <header className="dashboard-header">
-
 
           <div className="mobile-brand">
             Jafar Madrasa
@@ -397,6 +440,7 @@ const lateStudents = attendance
               ========================================== */
 
               <>
+
 
                 {/* TOTAL STUDENTS */}
 
@@ -599,12 +643,16 @@ const lateStudents = attendance
                 <div>
 
                   <strong>
-                    Take Attendance
+                    {attendanceTaken
+                      ? "Update Attendance"
+                      : "Take Attendance"}
                   </strong>
 
 
                   <span>
-                    Record today&apos;s attendance
+                    {attendanceTaken
+                      ? "Update today's attendance"
+                      : "Record today's attendance"}
                   </span>
 
                 </div>
@@ -757,12 +805,15 @@ const lateStudents = attendance
 
                       <td>
 
-                        {attendanceTaken ? (
+                        {attendanceTaken && student.attendance ? (
 
                           <span
                             className={`attendance-status ${student.attendance.toLowerCase()}`}
                           >
-                            {student.attendance}
+                            {student.attendance
+                              .charAt(0)
+                              .toUpperCase() +
+                              student.attendance.slice(1)}
                           </span>
 
                         ) : (
@@ -781,7 +832,9 @@ const lateStudents = attendance
                       <td>
 
                         <span className="progress-text">
-                          {student.progress}
+                          {latestProgress[student.id]
+                            ? `${latestProgress[student.id].surah}, Ayah ${latestProgress[student.id].ayahTo}`
+                            : "Not recorded"}
                         </span>
 
                       </td>
@@ -813,9 +866,11 @@ const lateStudents = attendance
 
           </section>
 
+
         </div>
 
       </main>
+
 
     </div>
   );

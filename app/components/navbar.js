@@ -2,10 +2,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  if (pathname?.startsWith("/management")) {
+    return null;
+  }
 
   return (
     <nav className="navbar">

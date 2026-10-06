@@ -1,0 +1,211 @@
+.admin-student-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.teacher-students-panel {
+  margin-bottom: 18px;
+}
+
+.teacher-student-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.teacher-student-card {
+  border: 1px solid #edf0ed;
+  border-radius: 12px;
+  background: #fcfdfc;
+  padding: 15px 14px 12px;
+}
+
+.teacher-student-header {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #edf0ed;
+}
+
+.teacher-student-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.teacher-student-meta strong,
+.teacher-student-meta small {
+  display: block;
+}
+
+.teacher-student-meta strong {
+  color: #2a372e;
+  font-size: 0.76rem;
+}
+
+.teacher-student-meta small {
+  margin-top: 4px;
+  color: #8d978f;
+  font-size: 0.6rem;
+}
+
+.student-count-badge {
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #edf5ef;
+  color: var(--admin-green);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.student-chip-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.student-chip-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #f0f2f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #58665c;
+  font-size: 0.64rem;
+}
+
+.student-chip-item .student-list-number {
+  color: #a2aba4;
+  font-size: 0.56rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.student-chip-name {
+  min-width: 0;
+  flex: 1;
+}
+
+.student-edit-button,
+.student-edit-actions button {
+  padding: 6px 9px;
+  border: 1px solid #dbe7de;
+  border-radius: 6px;
+  background: #f1f7f2;
+  color: var(--admin-green);
+  font: inherit;
+  font-size: 0.58rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.student-edit-button:hover,
+.student-edit-actions button:hover {
+  border-color: #b7cdbc;
+  background: #e7f1e9;
+}
+
+.student-edit-button:focus-visible,
+.student-edit-actions button:focus-visible,
+.student-edit-form select:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 2px;
+}
+
+.student-chip-item.editing {
+  grid-column: 1 / -1;
+  align-items: stretch;
+  padding: 11px;
+}
+
+.student-edit-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  width: 100%;
+}
+
+.student-edit-name {
+  flex: 1 1 130px;
+  color: #29362e;
+  font-weight: 700;
+}
+
+.student-edit-form select {
+  min-width: 170px;
+  padding: 7px 28px 7px 9px;
+  border: 1px solid #dfe6e0;
+  border-radius: 6px;
+  background: #fff;
+  color: #4d5a51;
+  font: inherit;
+  font-size: 0.62rem;
+}
+
+.student-edit-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.student-edit-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.student-edit-actions .student-edit-cancel {
+  border-color: #e5e9e5;
+  background: #fff;
+  color: #6b776e;
+}
+
+@media (max-width: 980px) {
+  .admin-student-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .student-chip-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .teacher-student-header {
+    flex-wrap: wrap;
+  }
+
+  .student-count-badge {
+    width: 100%;
+    text-align: center;
+  }
+
+  .student-chip-list {
+    grid-template-columns: 1fr;
+  }
+
+  .student-edit-form,
+  .student-edit-form label,
+  .student-edit-form select {
+    width: 100%;
+  }
+
+  .student-edit-name {
+    flex-basis: 100%;
+  }
+
+  .student-edit-actions {
+    width: 100%;
+  }
+
+  .student-edit-actions button {
+    flex: 1;
+  }
+}

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import "./progress.css";
 
-const students = [
+const defaultStudents = [
   {
     id: 1,
     name: "Aisha Ahmed",
@@ -31,6 +31,28 @@ const students = [
     level: "Level 3",
   },
 ];
+
+function subscribeToAttendance(callback) {
+  window.addEventListener("storage", callback);
+
+  return () => {
+    window.removeEventListener("storage", callback);
+  };
+}
+
+function getAttendanceData(savedAttendance) {
+  if (!savedAttendance) {
+    return null;
+  }
+
+  try {
+    const attendance = JSON.parse(savedAttendance);
+    return Array.isArray(attendance.students) ? attendance : null;
+  } catch (error) {
+    console.error("Unable to load saved attendance.", error);
+    return null;
+  }
+}
 
 const surahs = [
   "Al-Fatihah",
@@ -150,6 +172,28 @@ const surahs = [
 ];
 
 export default function QuranProgressPage() {
+  const savedAttendance = useSyncExternalStore(
+    subscribeToAttendance,
+    () => window.localStorage.getItem("todayAttendance"),
+    () => null
+  );
+  const attendance = getAttendanceData(savedAttendance);
+  const studentsById = new Map(
+    defaultStudents.map((student) => [student.id, student])
+  );
+
+  attendance?.students.forEach((student) => {
+    const existingStudent = studentsById.get(student.id);
+    studentsById.set(student.id, {
+      ...existingStudent,
+      ...student,
+      level: student.level || existingStudent?.level,
+    });
+  });
+
+  const students = Array.from(studentsById.values()).filter(
+    (student) => student.attendance?.toLowerCase() !== "absent"
+  );
   const [selectedStudent, setSelectedStudent] = useState("");
   const [surah, setSurah] = useState("");
   const [ayahFrom, setAyahFrom] = useState("");
@@ -170,13 +214,26 @@ export default function QuranProgressPage() {
 
   // Check required fields
   if (!student || !surah || !ayahFrom || !ayahTo) {
-    alert("Please fill in all required fields.");
+    alert(
+      student
+        ? "Please fill in all required fields."
+        : "Progress cannot be recorded for an absent student."
+    );
     return;
   }
 
+  // Get existing records
+  const existingProgress = JSON.parse(
+    localStorage.getItem("quranProgress") || "[]"
+  );
+
   // Create the progress record
   const progressRecord = {
-    id: Date.now(),
+    id:
+      existingProgress.reduce(
+        (maxId, record) => Math.max(maxId, Number(record.id) || 0),
+        0
+      ) + 1,
     studentId: student.id,
     studentName: student.name,
     date: new Date().toISOString().split("T")[0],
@@ -185,11 +242,6 @@ export default function QuranProgressPage() {
     ayahTo: ayahTo,
     remark: remark,
   };
-
-  // Get existing records
-  const existingProgress = JSON.parse(
-    localStorage.getItem("quranProgress") || "[]"
-  );
 
   // Save the new record
   localStorage.setItem(
@@ -333,7 +385,8 @@ export default function QuranProgressPage() {
                   key={student.id}
                   value={student.id}
                 >
-                  {student.name} — {student.level}
+                  {student.name}
+                  {student.level ? ` — ${student.level}` : ""}
                 </option>
 
               ))}

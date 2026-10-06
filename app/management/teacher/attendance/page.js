@@ -21,17 +21,17 @@ export default function AttendancePage() {
     },
     {
       id: 3,
-      name: "Fatima Omar",
+      name: "Yusuf Mohammed",
       attendance: "",
     },
     {
       id: 4,
-      name: "Hafsa Mohammed",
+      name: "Fatima Hassan",
       attendance: "",
     },
     {
       id: 5,
-      name: "Khadija Hassan",
+      name: "Abdullah Omar",
       attendance: "",
     },
   ]);
@@ -211,7 +211,7 @@ export default function AttendancePage() {
               </div>
 
 
-              {dashboardStudents.map((student) => (
+              {students.map((student) => (
 
                 <div
                   className="student-row"

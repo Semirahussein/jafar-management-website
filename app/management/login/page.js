@@ -21,24 +21,20 @@ export default function LoginPage() {
     console.log("Password:", password);
 
 
-    // Temporary demo teacher account
+    // role checking and routing based on username and password
 
-    if (
-      username.trim() === "teacher" &&
-      password === "123456"
-    ) {
+   const normalizedUsername = username.trim().toLowerCase();
 
-      console.log("Login successful");
-
-      router.push("/management/teacher/dashboard");
-
-    } else {
-
-      alert("Invalid username or password.");
-
-    }
+if (normalizedUsername === "teacher" && password === "123456") {
+  router.push("/management/teacher/dashboard");
+} else if (normalizedUsername === "admin" && password === "123456") {
+  router.push("/management/admin/dashboard");
+} else {
+  alert("Invalid username or password.");
+}
   };
 
+  
 
   return (
     <main className="login-page">
