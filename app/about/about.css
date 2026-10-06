@@ -38,7 +38,7 @@ overflow: hidden;
 .about-label,
 .section-label {
   color: #f59e0b;
-  font-size: 2rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 2px;
 }
@@ -160,6 +160,11 @@ overflow: hidden;
   gap: 25px;
 }
 
+.mission-vision {
+  background: white;
+  padding: 100px 7%;
+}
+
 .mission-card {
   padding: 35px;
 
@@ -214,7 +219,8 @@ overflow: hidden;
   padding: 100px 30px;
 }
 
-.program-grid {
+.program-grid,
+.programs-grid {
   display: grid;
 
   grid-template-columns: repeat(4, 1fr);
@@ -333,11 +339,12 @@ overflow: hidden;
   }
 
   .mission-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .program-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .program-grid,
+  .programs-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
 }
@@ -367,11 +374,17 @@ overflow: hidden;
     padding: 70px 20px;
   }
 
+  .mission-vision {
+    padding: 70px 20px;
+  }
+
   .section-heading-center h2 {
     font-size: 2rem;
   }
 
-  .program-grid {
+  .mission-grid,
+  .program-grid,
+  .programs-grid {
     grid-template-columns: 1fr;
   }
 

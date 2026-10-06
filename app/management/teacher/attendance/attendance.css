@@ -532,6 +532,8 @@
 
   width: 100%;
   max-width: 450px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
 
   padding: 35px;
 
@@ -761,6 +763,39 @@
 
   .attendance-header h1 {
     font-size: 28px;
+  }
+
+  .attendance-page {
+    padding: 24px 14px;
+  }
+
+  .attendance-card-header {
+    padding: 20px;
+  }
+
+  .student-row {
+    padding: 16px 20px;
+  }
+
+  .attendance-options {
+    gap: 7px;
+  }
+
+  .attendance-option {
+    min-height: 44px;
+  }
+
+  .summary-item {
+    padding: 16px;
+  }
+
+  .attendance-success {
+    margin: 32px auto;
+    padding: 30px 20px;
+  }
+
+  .confirmation-modal {
+    padding: 30px 20px;
   }
 
 }

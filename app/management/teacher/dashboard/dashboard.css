@@ -868,12 +868,42 @@
 @media (max-width: 800px) {
 
   .teacher-sidebar {
+    position: static;
+    width: 100%;
+    padding: 10px 12px;
+    gap: 0;
+  }
+
+  .sidebar-logo,
+  .sidebar-bottom {
     display: none;
+  }
+
+  .sidebar-navigation {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 5px;
+    scrollbar-width: thin;
+  }
+
+  .sidebar-link {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+
+  .sidebar-link span {
+    width: auto;
+  }
+
+  .teacher-dashboard {
+    display: block;
   }
 
   .dashboard-main {
     width: 100%;
-
     margin-left: 0;
   }
 
@@ -944,6 +974,32 @@
 
   .students-table {
     min-width: 650px;
+  }
+
+  .dashboard-header {
+    height: 64px;
+    padding: 0 14px;
+  }
+
+  .mobile-brand {
+    font-size: 0.78rem;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .dashboard-content {
+    padding: 22px 14px 32px;
+  }
+
+  .attendance-not-taken-card {
+    padding: 17px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    gap: 12px;
   }
 
 }

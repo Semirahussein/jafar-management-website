@@ -730,7 +730,7 @@ export default function TeacherDashboard() {
                 href="/management/teacher/students"
                 className="view-all"
               >
-                View All →
+                View more →
               </Link>
 
             </div>
