@@ -1,0 +1,766 @@
+/* =========================================
+   ATTENDANCE PAGE
+========================================= */
+
+.attendance-page {
+  min-height: 100vh;
+  background: #f8f7f2;
+  padding: 40px 60px;
+  color: #111827;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.attendance-header {
+  max-width: 1200px;
+  margin: 0 auto 35px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.attendance-label {
+  margin: 0 0 8px;
+
+  color: #f59e0b;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+}
+
+.attendance-header h1 {
+  margin: 0;
+
+  color: #0f3d21;
+
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.attendance-subtitle {
+  margin: 8px 0 0;
+
+  color: #6b7280;
+
+  font-size: 15px;
+}
+
+
+.attendance-date {
+  min-width: 190px;
+
+  padding: 16px 20px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  text-align: right;
+}
+
+.attendance-date span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+.attendance-date strong {
+  color: #0f3d21;
+
+  font-size: 15px;
+}
+
+
+/* =========================================
+   MAIN CONTAINER
+========================================= */
+
+.attendance-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+
+/* =========================================
+   ATTENDANCE CARD
+========================================= */
+
+.attendance-card {
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.attendance-card-header {
+  padding: 25px 30px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.attendance-card-header h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+.attendance-card-header p {
+  margin: 6px 0 0;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+.student-count {
+  padding: 8px 14px;
+
+  background: #f8f7f2;
+
+  color: #0f3d21;
+
+  border-radius: 20px;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* =========================================
+   TABLE
+========================================= */
+
+.attendance-table {
+  width: 100%;
+}
+
+.table-header {
+  display: grid;
+
+  grid-template-columns: 1fr 420px;
+
+  padding: 15px 30px;
+
+  background: #f8fafc;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  color: #6b7280;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+}
+
+
+/* =========================================
+   STUDENT ROW
+========================================= */
+
+.student-row {
+  display: grid;
+
+  grid-template-columns: 1fr 420px;
+
+  align-items: center;
+
+  padding: 18px 30px;
+
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.student-row:last-child {
+  border-bottom: none;
+}
+
+
+.student-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+
+  color: #111827;
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.student-avatar {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #0f3d21;
+
+  color: white;
+
+  border-radius: 50%;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+
+/* =========================================
+   ATTENDANCE OPTIONS
+========================================= */
+
+.attendance-options {
+  display: flex;
+
+  gap: 10px;
+}
+
+.attendance-option {
+  flex: 1;
+
+  padding: 10px 14px;
+
+  background: white;
+
+  border: 1px solid #d1d5db;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  color: #6b7280;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+}
+
+
+/* Present */
+
+.attendance-option.present:hover,
+.attendance-option.present.selected {
+  background: #ecfdf5;
+
+  border-color: #10b981;
+
+  color: #047857;
+}
+
+
+/* Late */
+
+.attendance-option.late:hover,
+.attendance-option.late.selected {
+  background: #fffbeb;
+
+  border-color: #f59e0b;
+
+  color: #b45309;
+}
+
+
+/* Absent */
+
+.attendance-option.absent:hover,
+.attendance-option.absent.selected {
+  background: #fef2f2;
+
+  border-color: #ef4444;
+
+  color: #b91c1c;
+}
+
+
+/* =========================================
+   SUMMARY
+========================================= */
+
+.attendance-summary {
+  margin-top: 25px;
+
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 18px;
+}
+
+.summary-item {
+  padding: 20px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  text-align: center;
+}
+
+.summary-number {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #0f3d21;
+
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.summary-label {
+  color: #6b7280;
+
+  font-size: 13px;
+}
+
+
+/* =========================================
+   SUBMIT BUTTON
+========================================= */
+
+.attendance-actions {
+  margin-top: 25px;
+
+  display: flex;
+
+  justify-content: flex-end;
+}
+
+.submit-attendance {
+  padding: 13px 25px;
+
+  background: #0f3d21;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.submit-attendance:hover {
+  background: #14532d;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================
+   SUCCESS PAGE
+========================================= */
+
+.attendance-success {
+  max-width: 600px;
+
+  margin: 80px auto;
+
+  padding: 45px;
+
+  background: white;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.success-icon {
+  width: 65px;
+  height: 65px;
+
+  margin: 0 auto 20px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #ecfdf5;
+
+  border-radius: 50%;
+
+  color: #047857;
+
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.attendance-success h2 {
+  margin: 0;
+
+  color: #0f3d21;
+
+  font-size: 24px;
+}
+
+.attendance-success > p {
+  margin: 10px 0 30px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+}
+
+
+/* =========================================
+   SUCCESS SUMMARY
+========================================= */
+
+.success-summary {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 12px;
+
+  margin-bottom: 30px;
+}
+
+.success-summary div {
+  padding: 15px;
+
+  background: #f8fafc;
+
+  border-radius: 8px;
+}
+
+.success-summary strong {
+  display: block;
+
+  color: #0f3d21;
+
+  font-size: 22px;
+}
+
+.success-summary span {
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+.back-dashboard {
+  padding: 12px 22px;
+
+  background: #0f3d21;
+
+  border: none;
+
+  border-radius: 8px;
+
+  color: white;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-dashboard:hover {
+  background: #14532d;
+}
+
+
+/* =========================================
+   CONFIRMATION OVERLAY
+========================================= */
+
+.confirmation-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.confirmation-modal {
+  position: relative;
+
+  width: 100%;
+  max-width: 450px;
+
+  padding: 35px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  text-align: center;
+
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+.close-confirmation {
+  position: absolute;
+
+  top: 15px;
+  right: 18px;
+
+  width: 32px;
+  height: 32px;
+
+  border: none;
+
+  background: transparent;
+
+  color: #6b7280;
+
+  font-size: 24px;
+
+  cursor: pointer;
+}
+
+.confirmation-icon {
+  width: 55px;
+  height: 55px;
+
+  margin: 0 auto 18px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #fffbeb;
+
+  border-radius: 50%;
+
+  color: #b45309;
+
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.confirmation-modal h2 {
+  margin: 0;
+
+  color: #111827;
+
+  font-size: 22px;
+}
+
+.confirmation-modal > p {
+  margin: 10px 0 25px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   CONFIRMATION SUMMARY
+========================================= */
+
+.confirmation-summary {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+
+  margin-bottom: 25px;
+}
+
+.confirmation-summary div {
+  padding: 12px;
+
+  background: #f8fafc;
+
+  border-radius: 8px;
+}
+
+.confirmation-summary strong {
+  display: block;
+
+  color: #111827;
+
+  font-size: 20px;
+}
+
+.confirmation-summary span {
+  color: #6b7280;
+
+  font-size: 11px;
+}
+
+
+/* =========================================
+   CONFIRMATION BUTTONS
+========================================= */
+
+.confirmation-actions {
+  display: flex;
+
+  gap: 10px;
+}
+
+.confirmation-actions button {
+  flex: 1;
+
+  padding: 12px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.cancel-button {
+  background: white;
+
+  border: 1px solid #d1d5db;
+
+  color: #374151;
+}
+
+.cancel-button:hover {
+  background: #f9fafb;
+}
+
+.confirm-button {
+  background: #0f3d21;
+
+  border: 1px solid #0f3d21;
+
+  color: white;
+}
+
+.confirm-button:hover {
+  background: #14532d;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 850px) {
+
+  .attendance-page {
+    padding: 30px 20px;
+  }
+
+  .attendance-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 20px;
+  }
+
+  .attendance-date {
+    width: 100%;
+
+    text-align: left;
+  }
+
+  .table-header,
+  .student-row {
+    grid-template-columns: 1fr;
+  }
+
+  .table-header span:nth-child(2) {
+    display: none;
+  }
+
+  .student-row {
+    gap: 15px;
+  }
+
+  .attendance-options {
+    width: 100%;
+  }
+
+}
+
+
+@media (max-width: 550px) {
+
+  .attendance-card-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 15px;
+  }
+
+  .attendance-options {
+    flex-direction: column;
+  }
+
+  .attendance-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .success-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .attendance-header h1 {
+    font-size: 28px;
+  }
+
+}

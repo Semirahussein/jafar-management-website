@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       console.log("Login successful");
 
-      router.push("/teacher/dashboard");
+      router.push("/management/teacher/dashboard");
 
     } else {
 

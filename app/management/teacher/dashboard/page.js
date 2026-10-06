@@ -1,7 +1,37 @@
 "use client";
-
+import { useState, useEffect} from "react";
 import Link from "next/link";
 import "./dashboard.css";
+
+
+function getTodayAttendance() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const savedAttendance =
+    localStorage.getItem("todayAttendance");
+
+  if (!savedAttendance) {
+    return null;
+  }
+
+  try {
+    const data = JSON.parse(savedAttendance);
+
+    const today = new Date()
+      .toISOString()
+      .split("T")[0];
+
+    if (data.date === today) {
+      return data;
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export default function TeacherDashboard() {
 
@@ -48,6 +78,24 @@ export default function TeacherDashboard() {
     },
   ];
 
+  const dashboardStudents = attendance
+  ? attendance.students
+  : students;
+
+  const [attendance, setAttendance] = useState(() => {
+    if (typeof window === "undefined") return null;
+
+    const savedAttendance = localStorage.getItem("todayAttendance");
+    if (!savedAttendance) return null;
+
+    try {
+      const data = JSON.parse(savedAttendance);
+      const today = new Date().toISOString().split("T")[0];
+      return data.date === today ? data : null;
+    } catch {
+      return null;
+    }
+  });
 
   // =====================================================
   // ATTENDANCE STATUS
@@ -58,26 +106,27 @@ export default function TeacherDashboard() {
   // Later the backend will provide this value.
   // =====================================================
 
-  const attendanceTaken = false;
-
+const attendanceTaken = attendance !== null;
 
   // =====================================================
   // STUDENT COUNTS
   // =====================================================
 
-  const totalStudents = students.length;
+  const totalStudents = attendance
+  ? attendance.students.length
+  : students.length;
 
-  const presentStudents = students.filter(
-    (student) => student.attendance === "Present"
-  ).length;
+const presentStudents = attendance
+  ? attendance.present
+  : 0;
 
-  const absentStudents = students.filter(
-    (student) => student.attendance === "Absent"
-  ).length;
+const absentStudents = attendance
+  ? attendance.absent
+  : 0;
 
-  const lateStudents = students.filter(
-    (student) => student.attendance === "Late"
-  ).length;
+const lateStudents = attendance
+  ? attendance.late
+  : 0;
 
 
   return (
