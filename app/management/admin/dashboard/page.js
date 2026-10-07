@@ -164,6 +164,13 @@ export default function AdminDashboardPage() {
             <span>Branch administrator</span>
           </div>
         </div>
+        <Link
+          className="admin-logout-link"
+          href="/management/login"
+        >
+          <span className="admin-nav-icon" aria-hidden="true">↪</span>
+          Logout
+        </Link>
       </aside>
 
       <main className="admin-main">

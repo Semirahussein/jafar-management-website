@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import "./dashboard.css";
 
 
@@ -73,6 +74,7 @@ function getLatestQuranProgress(savedProgress) {
 
 
 export default function TeacherDashboard() {
+  const router = useRouter();
 
   // =====================================================
   // DEMO TEACHER DATA
@@ -271,8 +273,9 @@ export default function TeacherDashboard() {
 
 
           <button
-            className="logout-button"
             type="button"
+            className="logout-button"
+            onClick={() => router.replace("/management/login")}
           >
             <span>↪</span>
             Logout

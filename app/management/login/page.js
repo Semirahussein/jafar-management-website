@@ -29,6 +29,8 @@ if (normalizedUsername === "teacher" && password === "123456") {
   router.push("/management/teacher/dashboard");
 } else if (normalizedUsername === "admin" && password === "123456") {
   router.push("/management/admin/dashboard");
+} else if (normalizedUsername === "manager" && password === "123456") {
+  router.push("/management/manager/dashboard");
 } else {
   alert("Invalid username or password.");
 }

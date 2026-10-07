@@ -25,6 +25,9 @@
 
   flex-direction: column;
 
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
   box-sizing: border-box;
 
   padding: 25px 18px;
@@ -160,6 +163,8 @@
   display: flex;
 
   flex-direction: column;
+
+  flex: 0 0 auto;
 
   gap: 5px;
 
@@ -870,12 +875,20 @@
   .teacher-sidebar {
     position: static;
     width: 100%;
+    max-height: 50vh;
     padding: 10px 12px;
     gap: 0;
   }
 
-  .sidebar-logo,
   .sidebar-bottom {
+    flex-direction: row;
+    align-self: flex-end;
+    margin-top: 8px;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .sidebar-logo {
     display: none;
   }
 
@@ -891,6 +904,16 @@
     flex: 0 0 auto;
     min-height: 42px;
     padding: 10px 12px;
+    white-space: nowrap;
+  }
+
+  .sidebar-bottom .sidebar-link,
+  .sidebar-bottom .logout-button {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 37px;
+    padding: 8px 10px;
+    font-size: 0.72rem;
     white-space: nowrap;
   }
 
