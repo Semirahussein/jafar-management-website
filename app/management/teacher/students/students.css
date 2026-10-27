@@ -2,6 +2,39 @@
   max-width: 1400px;
 }
 
+.teacher-students-page-actions {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.teacher-students-teacher-picker {
+  display: grid;
+  gap: 4px;
+  color: #58665c;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+
+.teacher-students-teacher-picker select {
+  min-height: 35px;
+  max-width: 210px;
+  padding: 0 28px 0 9px;
+  border: 1px solid #dfe6e0;
+  border-radius: 7px;
+  background: #fff;
+  color: #344339;
+  font: inherit;
+  font-size: 0.69rem;
+}
+
+.teacher-students-teacher-picker select:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 2px;
+}
+
 .teacher-student-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -223,6 +256,15 @@
 }
 
 @media (max-width: 600px) {
+  .teacher-students-page-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .teacher-students-teacher-picker select {
+    max-width: none;
+  }
+
   .teacher-students-panel-heading {
     flex-direction: column;
     gap: 10px;

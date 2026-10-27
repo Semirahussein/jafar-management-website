@@ -5,6 +5,7 @@ import Link from "next/link";
 import "../dashboard/dashboard.css";
 import "./teachers.css";
 import {
+  getStudentProfiles,
   getServerStudentRosterSnapshot,
   getStudentRoster,
   getStudentRosterSnapshot,
@@ -106,6 +107,10 @@ export default function AdminTeachersPage() {
               assignedStudents: [
                 ...teacher.assignedStudents,
                 ...teacherToRemove.assignedStudents,
+              ],
+              studentProfiles: [
+                ...getStudentProfiles(teacher),
+                ...getStudentProfiles(teacherToRemove),
               ],
             }
           : teacher

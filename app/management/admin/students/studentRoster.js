@@ -104,6 +104,20 @@ export function getServerStudentRosterSnapshot() {
   return null;
 }
 
+export function getStudentProfiles(teacher) {
+  if (!Array.isArray(teacher.studentProfiles)) {
+    return Array(teacher.assignedStudents.length).fill(null);
+  }
+
+  return teacher.assignedStudents.map(
+    (_, index) => teacher.studentProfiles[index] ?? null
+  );
+}
+
+export function getStudentProfile(teacher, studentIndex) {
+  return getStudentProfiles(teacher)[studentIndex] ?? null;
+}
+
 export function getStudentRoster(snapshot) {
   if (!snapshot) {
     return initialTeachers;
@@ -117,7 +131,18 @@ export function getStudentRoster(snapshot) {
         (teacher) =>
           !teacher ||
           !Array.isArray(teacher.assignedStudents) ||
-          typeof teacher.id !== "number"
+          typeof teacher.id !== "number" ||
+          (teacher.studentProfiles !== undefined &&
+            (!Array.isArray(teacher.studentProfiles) ||
+              teacher.studentProfiles.length !== teacher.assignedStudents.length ||
+              teacher.studentProfiles.some(
+                (profile) =>
+                  profile !== null &&
+                  (!profile ||
+                    typeof profile.id !== "string" ||
+                    !Number.isInteger(profile.age) ||
+                    typeof profile.level !== "string")
+              )))
       )
     ) {
       throw new Error("Saved student roster has an invalid format.");

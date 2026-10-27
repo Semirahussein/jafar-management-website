@@ -310,7 +310,7 @@ a {
 
 .program-card {
   background: var(--white);
-  padding: 30px 22px;
+  padding: 5px 15px;
   border-radius: 12px;
   border: 1px solid var(--border);
   transition: 0.3s;
@@ -323,7 +323,7 @@ a {
 
 .program-icon {
   font-size: 2.2rem;
-  margin-bottom: 18px;
+  margin-bottom: 5px;
 }
 
 .program-card h3 {
@@ -350,13 +350,13 @@ a {
 .why-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 25px;
+  gap: 20px;
 }
 
 .why-card {
-  padding: 35px;
+  padding: 15px;
   border-left: 4px solid var(--primary);
-  background: #fafaf7;
+  background: #f0f0df;
 }
 
 .why-number {
@@ -381,7 +381,7 @@ a {
 .cta {
   padding: 75px 0;
   background: var(--primary);
-  color: var(--white);
+  color: rgb(169, 125, 42);
 }
 
 .cta-content {
@@ -392,16 +392,16 @@ a {
 }
 
 .cta .section-tag {
-  color: #e8c77c;
+  color: #ecba47;
 }
 
 .cta h2 {
-  color: var(--white);
+  color: rgb(202, 147, 128);
 }
 
 .cta p {
   line-height: 1.7;
-  color: #d1e1d5;
+  color: #b6e982;
 }
 
 /* ================= FOOTER ================= */

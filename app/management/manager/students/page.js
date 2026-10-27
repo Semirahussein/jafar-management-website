@@ -39,6 +39,8 @@ export default function ManagerStudentsPage() {
             <thead>
               <tr>
                 <th scope="col">Student</th>
+                <th scope="col">Age</th>
+                <th scope="col">Level</th>
                 <th scope="col">Branch</th>
                 <th scope="col">Teacher</th>
               </tr>
@@ -47,13 +49,15 @@ export default function ManagerStudentsPage() {
               {filteredStudents.map((student) => (
                 <tr key={student.id}>
                   <th scope="row">{student.name}</th>
+                  <td>{student.age ?? "—"}</td>
+                  <td>{student.level}</td>
                   <td>Main Branch</td>
                   <td>{student.teacher}</td>
                 </tr>
               ))}
               {filteredStudents.length === 0 && (
                 <tr>
-                  <td className="manager-empty" colSpan="3">
+                  <td className="manager-empty" colSpan="5">
                     No students match that search.
                   </td>
                 </tr>

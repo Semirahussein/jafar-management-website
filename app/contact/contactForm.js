@@ -1,19 +1,13 @@
-
 "use client";
 
 import { useState } from "react";
 
-export default function ContactForm() {
+export default function ContactForm({ messages }) {
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    // replace this with backend API request.
-
     setShowSuccess(true);
-
-    // Clear the form
     event.target.reset();
   };
 
@@ -24,163 +18,90 @@ export default function ContactForm() {
   return (
     <>
       <form className="contact-form" onSubmit={handleSubmit}>
-
         <div className="form-row">
-
           <div className="form-group">
-            <label htmlFor="name">
-              Full Name
-            </label>
-
+            <label htmlFor="name">{messages.fullName}</label>
             <input
               type="text"
               id="name"
               name="name"
-              placeholder="Enter your full name"
+              placeholder={messages.namePlaceholder}
               required
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">
-              Email Address
-            </label>
-
+            <label htmlFor="email">{messages.email}</label>
             <input
               type="email"
               id="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder={messages.emailPlaceholder}
               required
             />
           </div>
-
         </div>
 
-
         <div className="form-group">
-
-          <label htmlFor="phone">
-            Phone Number
-          </label>
-
+          <label htmlFor="phone">{messages.phone}</label>
           <input
             type="tel"
             id="phone"
             name="phone"
-            placeholder="+251 XX XXX XXXX"
+            placeholder={messages.phonePlaceholder}
           />
-
         </div>
 
-
         <div className="form-group">
-
-          <label htmlFor="subject">
-            Subject
-          </label>
-
-          <select
-            id="subject"
-            name="subject"
-            required
-          >
-            <option value="">
-              Select a subject
-            </option>
-
-            <option value="admission">
-              Admission
-            </option>
-
-            <option value="programs">
-              Programs
-            </option>
-
-            <option value="quran">
-              Quran Education
-            </option>
-
-            <option value="branch">
-              Branch Information
-            </option>
-
-            <option value="general">
-              General Inquiry
-            </option>
+          <label htmlFor="subject">{messages.subject}</label>
+          <select id="subject" name="subject" required>
+            <option value="">{messages.selectSubject}</option>
+            {messages.subjects.map((subject, index) => (
+              <option
+                value={["admission", "programs", "quran", "branch", "general"][index]}
+                key={subject}
+              >
+                {subject}
+              </option>
+            ))}
           </select>
-
         </div>
 
-
         <div className="form-group">
-
-          <label htmlFor="message">
-            Your Message
-          </label>
-
+          <label htmlFor="message">{messages.message}</label>
           <textarea
             id="message"
             name="message"
             rows="6"
-            placeholder="Write your message here..."
+            placeholder={messages.messagePlaceholder}
             required
-          ></textarea>
-
+          />
         </div>
 
-
-        <button
-          type="submit"
-          className="contact-submit-button"
-        >
-          Send Message →
+        <button type="submit" className="contact-submit-button">
+          {messages.send}
         </button>
-
       </form>
-
-
-      {/* SUCCESS OVERLAY */}
 
       {showSuccess && (
         <div className="success-overlay">
-
           <div className="success-modal">
-
             <button
               className="success-close"
               onClick={closeSuccess}
-              aria-label="Close"
+              aria-label={messages.close}
             >
               ×
             </button>
-
-            <div className="success-icon">
-              ✓
-            </div>
-
-            <h2>
-              Message Sent!
-            </h2>
-
-            <p>
-              Thank you for contacting Jafar Madrasa.
-              Your message has been successfully submitted.
-            </p>
-
-            <button
-              className="success-button"
-              onClick={closeSuccess}
-            >
-              Done
+            <div className="success-icon">✓</div>
+            <h2>{messages.sent}</h2>
+            <p>{messages.success}</p>
+            <button className="success-button" onClick={closeSuccess}>
+              {messages.done}
             </button>
-
           </div>
-
         </div>
       )}
-
     </>
   );
 }
-

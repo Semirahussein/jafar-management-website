@@ -1,16 +1,18 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import "../dashboard/dashboard.css";
 import "./students.css";
+import {
+  getServerStudentRosterSnapshot,
+  getStudentProfile,
+  getStudentRoster,
+  getStudentRosterSnapshot,
+  subscribeToStudentRoster,
+} from "../../admin/students/studentRoster";
 
-const teacher = {
-  name: "Aisha Mohammed",
-  branch: "Jafar Madrasa - Main Branch",
-};
-
-const assignedStudents = [
+const legacyStudentIds = [
   { id: 1, name: "Aisha Ahmed", level: "Level 1" },
   { id: 2, name: "Maryam Ali", level: "Level 1" },
   { id: 3, name: "Yusuf Mohammed", level: "Level 2" },
@@ -99,6 +101,19 @@ function formatRecordDate(date) {
 }
 
 export default function TeacherStudentsPage() {
+  const [teacherId, setTeacherId] = useState("");
+  const rosterSnapshot = useSyncExternalStore(
+    subscribeToStudentRoster,
+    getStudentRosterSnapshot,
+    getServerStudentRosterSnapshot
+  );
+  const teachers = getStudentRoster(rosterSnapshot);
+  const selectedTeacher =
+    teachers.find((candidate) => String(candidate.id) === teacherId) ?? teachers[0];
+  const teacher = {
+    name: selectedTeacher?.name ?? "No teachers available",
+    branch: "Jafar Madrasa - Main Branch",
+  };
   const savedAttendance = useSyncExternalStore(
     subscribeToLocalStorage,
     () => window.localStorage.getItem("todayAttendance"),
@@ -111,17 +126,26 @@ export default function TeacherStudentsPage() {
   );
   const todayAttendance = getTodayAttendance(savedAttendance);
   const latestProgress = getLatestProgressByStudent(savedProgress);
-  const students = useMemo(
-    () =>
-      assignedStudents.map((student) => ({
-        ...student,
-        attendance: todayAttendance?.find(
-          (entry) => Number(entry.id) === student.id
-        )?.attendance,
-        progress: latestProgress[student.id],
-      })),
-    [todayAttendance, latestProgress]
-  );
+  const students = (selectedTeacher?.assignedStudents ?? []).map((name, index) => {
+    const profile = getStudentProfile(selectedTeacher, index);
+    const legacyStudent = legacyStudentIds.find(
+      (student) => student.name === name
+    );
+    const progressId = legacyStudent?.id ?? profile?.id;
+
+    return {
+      id: profile?.id ?? `${selectedTeacher.id}-${index}`,
+      name,
+      age: profile?.age,
+      level: profile?.level ?? "Not recorded",
+      attendance: legacyStudent
+        ? todayAttendance?.find(
+            (entry) => Number(entry.id) === legacyStudent.id
+          )?.attendance
+        : undefined,
+      progress: latestProgress[progressId],
+    };
+  });
   const presentCount = students.filter(
     (student) => student.attendance?.toLowerCase() === "present"
   ).length;
@@ -196,9 +220,28 @@ export default function TeacherStudentsPage() {
             <div>
               <p className="dashboard-label">STUDENT OVERVIEW</p>
               <h1>My Students</h1>
-              <p>Review your assigned students, today&apos;s attendance, and latest Quran progress.</p>
+              <p>
+                Review students assigned to {teacher.name}, their attendance, and Quran progress.
+              </p>
             </div>
-            <span className="branch-badge">{teacher.branch}</span>
+            <div className="teacher-students-page-actions">
+              <label className="teacher-students-teacher-picker" htmlFor="teacher-filter">
+                <span>Teacher</span>
+                <select
+                  id="teacher-filter"
+                  value={selectedTeacher?.id ?? ""}
+                  onChange={(event) => setTeacherId(event.target.value)}
+                  disabled={teachers.length === 0}
+                >
+                  {teachers.map((candidate) => (
+                    <option key={candidate.id} value={candidate.id}>
+                      {candidate.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <span className="branch-badge">{teacher.branch}</span>
+            </div>
           </section>
 
           <section className="teacher-student-stats" aria-label="Student summary">
@@ -235,6 +278,7 @@ export default function TeacherStudentsPage() {
                   <thead>
                     <tr>
                       <th scope="col">Student</th>
+                      <th scope="col">Age</th>
                       <th scope="col">Level</th>
                       <th scope="col">Today&apos;s attendance</th>
                       <th scope="col">Latest Quran progress</th>
@@ -251,6 +295,7 @@ export default function TeacherStudentsPage() {
                             <strong>{student.name}</strong>
                           </div>
                         </td>
+                        <td data-label="Age">{student.age ?? "—"}</td>
                         <td data-label="Level">{student.level}</td>
                         <td data-label="Today’s attendance">
                           {student.attendance ? (

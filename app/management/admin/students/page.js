@@ -5,6 +5,8 @@ import Link from "next/link";
 import "../dashboard/dashboard.css";
 import "./students.css";
 import {
+  getStudentProfile,
+  getStudentProfiles,
   getServerStudentRosterSnapshot,
   getStudentRoster,
   getStudentRosterSnapshot,
@@ -70,6 +72,9 @@ export default function AdminStudentsPage() {
           assignedStudents: teacher.assignedStudents.filter(
             (_, index) => index !== editingStudent.studentIndex
           ),
+          studentProfiles: getStudentProfiles(teacher).filter(
+            (_, index) => index !== editingStudent.studentIndex
+          ),
         };
       }
 
@@ -77,6 +82,10 @@ export default function AdminStudentsPage() {
         return {
           ...teacher,
           assignedStudents: [...teacher.assignedStudents, editingStudent.name],
+          studentProfiles: [
+            ...getStudentProfiles(teacher),
+            editingStudent.profile,
+          ],
         };
       }
 
@@ -87,8 +96,13 @@ export default function AdminStudentsPage() {
     setEditingStudent(null);
   };
 
-  const openStudentEditor = (teacherId, studentIndex, name) => {
-    setEditingStudent({ teacherId, studentIndex, name });
+  const openStudentEditor = (teacher, studentIndex, name) => {
+    setEditingStudent({
+      teacherId: teacher.id,
+      studentIndex,
+      name,
+      profile: getStudentProfile(teacher, studentIndex),
+    });
     setTargetTeacherId("");
   };
 
@@ -211,7 +225,15 @@ export default function AdminStudentsPage() {
                 <h2>Students by teacher</h2>
                 <p>All assigned learners under each class group.</p>
               </div>
-              <span className="admin-table-caption">{totalStudents} students</span>
+              <div className="admin-student-panel-actions">
+                <Link
+                  className="admin-register-student-button"
+                  href="/management/admin/students/register"
+                >
+                  + Register student
+                </Link>
+                <span className="admin-table-caption">{totalStudents} students</span>
+              </div>
             </div>
 
             <div className="teacher-student-groups">
@@ -244,7 +266,7 @@ export default function AdminStudentsPage() {
 
                       return (
                         <li
-                          key={`${teacher.id}-${student}`}
+                          key={`${teacher.id}-${student}-${index}`}
                           className={`student-chip-item${isEditing ? " editing" : ""}`}
                         >
                           {isEditing ? (
@@ -297,12 +319,21 @@ export default function AdminStudentsPage() {
                               <span className="student-list-number">
                                 {String(index + 1).padStart(2, "0")}
                               </span>
-                              <span className="student-chip-name">{student}</span>
+                              <span className="student-chip-name">
+                                <strong>{student}</strong>
+                                {getStudentProfile(teacher, index) && (
+                                  <small className="student-chip-details">
+                                    Age {getStudentProfile(teacher, index).age}
+                                    {" · "}
+                                    {getStudentProfile(teacher, index).level}
+                                  </small>
+                                )}
+                              </span>
                               <button
                                 type="button"
                                 className="student-edit-button"
                                 onClick={() =>
-                                  openStudentEditor(teacher.id, index, student)
+                                  openStudentEditor(teacher, index, student)
                                 }
                                 aria-label={`Edit ${student}`}
                               >

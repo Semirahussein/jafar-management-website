@@ -1,0 +1,87 @@
+{
+  "hero": {
+    "label": "About Us",
+    "welcome": "Welcome to JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER, where we are dedicated to nurturing faith, knowledge, character, and a lifelong connection with the Quran.",
+    "intro": "Jafar Madrasa is dedicated to providing quality Quranic education in a welcoming environment where students can learn, grow, and strengthen their connection with the Quran."
+  },
+  "identity": {
+    "label": "Who we are",
+    "title": "A Place to Learn, Grow, and Connect with the Quran",
+    "paragraphs": [
+      "At JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER, we are committed to providing a nurturing environment where students can develop their faith, knowledge, and character through comprehensive Quranic education.",
+      "Our dedicated team of qualified teachers is passionate about guiding students on their journey to build a strong connection with the Quran and Islamic teachings.",
+      "Through dedicated teachers, structured learning programs, and continuous support, we aim to create an environment where every student can progress according to their individual learning journey.",
+      "We believe in fostering a lifelong love for learning and spiritual growth, empowering our students to become knowledgeable and compassionate individuals who contribute positively to their communities.",
+      "Our madrasa serves students across multiple campuses, bringing together teachers, students, parents, and administrators to support meaningful Quranic education."
+    ],
+    "statements": [
+      "Join us in our mission to empower minds through Islamic education and Quranic teachings.",
+      "Discover the transformative power of learning at JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER.",
+      "Experience a supportive and inspiring environment where students can thrive academically, spiritually, and personally."
+    ]
+  },
+  "purpose": {
+    "label": "Our Purpose",
+    "title": "What Guides Us",
+    "description": "Everything we do is centered around helping students learn the Quran with understanding, consistency, and care.",
+    "cards": [
+      {
+        "title": "Our Mission",
+        "paragraphs": [
+          "To provide accessible and high-quality Quranic education that helps students develop strong recitation skills, understanding, discipline, and love for the Quran."
+        ]
+      },
+      {
+        "title": "Our Values",
+        "paragraphs": [
+          "To create a community of learners who are deeply connected to the Quran and committed to living by its principles.",
+          "We value sincerity, discipline, respect, consistency, excellence, and creating a supportive environment for every student."
+        ]
+      }
+    ]
+  },
+  "programs": {
+    "label": "Our Programs",
+    "title": "Comprehensive Quranic Education",
+    "description": "We offer a range of programs designed to meet the diverse needs of our students, from beginners to advanced learners.",
+    "journey": "Our programs are designed to support students at different stages of their Quranic learning journey.",
+    "cards": [
+      {
+        "title": "Quran Recitation",
+        "paragraphs": [
+          "Learn the art of proper Quranic recitation with Tajweed rules, ensuring accurate pronunciation and fluency.",
+          "Build strong Quran reading and recitation skills with guidance from experienced teachers."
+        ]
+      },
+      {
+        "title": "Hifz Program",
+        "paragraphs": [
+          "Memorize the Quran with structured programs and personalized support to help students achieve their memorization goals.",
+          "Develop a deep connection with the Quran through memorization and understanding."
+        ]
+      },
+      {
+        "title": "Tajweed",
+        "paragraphs": [
+          "Master the science of Quranic recitation with proper pronunciation and intonation.",
+          "Develop a deep understanding of Tajweed rules and apply them consistently in your recitation.",
+          "Learn the rules of Quranic pronunciation and improve the accuracy and beauty of recitation."
+        ]
+      },
+      {
+        "title": "Islamic Studies",
+        "paragraphs": [
+          "Gain knowledge of Islamic teachings, history, and principles to strengthen your faith and understanding of Islam.",
+          "Explore the rich heritage of Islamic knowledge and its relevance in contemporary life.",
+          "Develop foundational Islamic knowledge alongside Quranic learning."
+        ]
+      }
+    ]
+  },
+  "cta": {
+    "label": "BEGIN THE JOURNEY",
+    "title": "Give Your Child the Gift of Quranic Education",
+    "description": "Join our learning community and take the next step in your child’s Quranic journey.",
+    "contact": "Contact Us →"
+  }
+}

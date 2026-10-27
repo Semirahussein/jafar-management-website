@@ -31,6 +31,8 @@ if (normalizedUsername === "teacher" && password === "123456") {
   router.push("/management/admin/dashboard");
 } else if (normalizedUsername === "manager" && password === "123456") {
   router.push("/management/manager/dashboard");
+} else if (normalizedUsername === "parent" && password === "123456") {
+  router.push("/management/parent/dashboard");
 } else {
   alert("Invalid username or password.");
 }

@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getPublicMessages, hasPublicLocale } from "../lib/public-messages";
+import ContactForm from "./contactForm";
 import "./contact.css";
-import ContactForm from "./contactForm";    
-
 
 export const metadata = {
   title: "Contact Us | Jafar Madrasa",
@@ -9,338 +10,127 @@ export const metadata = {
     "Get in touch with Jafar Madrasa for admissions, programs, branch information, and general inquiries.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage({ searchParams }) {
+  const params = await searchParams;
+  const requestedLocale = params?.lang;
+
+  if (
+    requestedLocale !== undefined &&
+    (typeof requestedLocale !== "string" || !hasPublicLocale(requestedLocale))
+  ) {
+    notFound();
+  }
+
+  const locale = requestedLocale ?? "en";
+  const messages = await getPublicMessages(locale, "contact");
+  const localizedHref = (href) => ({ pathname: href, query: { lang: locale } });
+
   return (
-    <main className="contact-page">
-
-      
-
+    <main className="contact-page" lang={locale}>
       <section className="contact-hero">
         <div className="contact-hero-content">
-
-          <span className="contact-label">
-            GET IN TOUCH
-          </span>
-
-          <h1>
-            Contact <span>Jafar Madrasa</span>
-          </h1>
-
-          <p>
-            Have a question about our programs, admissions, or branches?
-            We would be happy to hear from you.
-          </p>
-
+          <span className="contact-label">{messages.hero.label}</span>
+          <h1>{messages.hero.title}</h1>
+          <p>{messages.hero.description}</p>
         </div>
       </section>
 
-
-            <section className="contact-intro">
-
-        <span className="section-label">
-          WE ARE HERE TO HELP
-        </span>
-
-        <h2>
-          Let&apos;s Start a Conversation
-        </h2>
-
-        <p>
-          Whether you are a parent looking for Quranic education for your
-          child, a student interested in joining our programs, or simply
-          want to learn more about Jafar Madrasa, feel free to contact us.
-        </p>
-
+      <section className="contact-intro">
+        <span className="section-label">{messages.intro.label}</span>
+        <h2>{messages.intro.title}</h2>
+        <p>{messages.intro.description}</p>
       </section>
-
-
-      {/* CONTACT INFORMATION + FORM */}
 
       <section className="contact-main">
-
-        {/* CONTACT INFORMATION */}
-
         <div className="contact-info">
-
-          <span className="section-label">
-            CONTACT INFORMATION
-          </span>
-
-          <h2>
-            We&apos;d Love to Hear From You
-          </h2>
-
+          <span className="section-label">{messages.information.label}</span>
+          <h2>{messages.information.title}</h2>
           <p className="contact-info-intro">
-            Reach out to us through any of the following channels.
-            Our team will do its best to respond to your inquiry.
+            {messages.information.description}
           </p>
 
-
-          {/* PHONE */}
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              ☎
+          {[
+            {
+              icon: "☎",
+              title: messages.information.phone,
+              values: messages.information.phones,
+            },
+            {
+              icon: "✉",
+              title: messages.information.email,
+              values: messages.information.emails,
+            },
+            {
+              icon: "📍",
+              title: messages.information.address,
+              values: messages.information.addresses,
+            },
+            {
+              icon: "◷",
+              title: messages.information.hours,
+              values: [messages.information.days, messages.information.time],
+            },
+          ].map((item) => (
+            <div className="contact-item" key={item.title}>
+              <div className="contact-icon">{item.icon}</div>
+              <div>
+                <h3>{item.title}</h3>
+                {item.values.map((value) => (
+                  <p key={value}>{value}</p>
+                ))}
+              </div>
             </div>
-
-            <div>
-              <h3>Phone</h3>
-
-              <p>
-                +251 123 456 789
-              </p>
-
-              <p>
-                +251 987 654 321
-              </p>
-            </div>
-
-          </div>
-
-
-          {/* EMAIL */}
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              ✉
-            </div>
-
-            <div>
-              <h3>Email</h3>
-
-              <p>
-                info@jafarmadrasa.com
-              </p>
-            </div>
-
-          </div>
-
-
-          {/* ADDRESS */}
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              📍
-            </div>
-
-            <div>
-              <h3>Address</h3>
-
-              <p>
-                Addis Ababa, Ethiopia
-              </p>
-
-              <p>
-                Jafar Madrasa
-              </p>
-            </div>
-
-          </div>
-
-
-          {/* HOURS */}
-
-          <div className="contact-item">
-
-            <div className="contact-icon">
-              ◷
-            </div>
-
-            <div>
-              <h3>Office Hours</h3>
-
-              <p>
-                Monday – Friday
-              </p>
-
-              <p>
-                8:00 AM – 5:00 PM
-              </p>
-            </div>
-
-          </div>
-
+          ))}
         </div>
-
-
-        {/* CONTACT FORM */}
 
         <div className="contact-form-wrapper">
-
-          <span className="section-label">
-            SEND US A MESSAGE
-          </span>
-
-          <h2>
-            How Can We Help?
-          </h2>
-           <p>
-        Fill out the form and send us your message. Whether you
-        are a parent, student, or someone interested in learning
-        more about Jafar Madrasa, we would be happy to hear from you.
-      </p>
-
-         <ContactForm />
-
+          <span className="section-label">{messages.formIntro.label}</span>
+          <h2>{messages.formIntro.title}</h2>
+          <p>{messages.formIntro.description}</p>
+          <ContactForm messages={messages.form} />
         </div>
-
       </section>
-
-
-      {/*  BRANCHES */}
 
       <section className="branches-section">
-
         <div className="branches-heading">
-
-          <span className="section-label">
-            OUR LOCATIONS
-          </span>
-
-          <h2>
-            Find a Jafar Madrasa Branch
-          </h2>
-
-          <p>
-            With multiple campuses, we are working to make Quranic
-            and Islamic education accessible to more students and families.
-          </p>
-
+          <span className="section-label">{messages.branches.label}</span>
+          <h2>{messages.branches.title}</h2>
+          <p>{messages.branches.description}</p>
         </div>
-
-
         <div className="branches-grid">
-
-          <div className="branch-card">
-
-            <span className="branch-number">
-              01
-            </span>
-
-            <h3>
-              Main Branch
-            </h3>
-
-            <p>
-              Addis Ababa, Ethiopia
-            </p>
-
-            <Link href="/contact">
-              Get Directions →
-            </Link>
-
-          </div>
-
-
-          <div className="branch-card">
-
-            <span className="branch-number">
-              02
-            </span>
-
-            <h3>
-              Second Branch
-            </h3>
-
-            <p>
-              Addis Ababa, Ethiopia
-            </p>
-
-            <Link href="/contact">
-              Get Directions →
-            </Link>
-
-          </div>
-
-
-          <div className="branch-card">
-
-            <span className="branch-number">
-              03
-            </span>
-
-            <h3>
-              Other Branches
-            </h3>
-
-            <p>
-              More locations coming soon
-            </p>
-
-            <Link href="/contact">
-              Contact Us →
-            </Link>
-
-          </div>
-
+          {messages.branches.items.map((branch, index) => (
+            <div className="branch-card" key={branch.name}>
+              <span className="branch-number">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3>{branch.name}</h3>
+              <p>{branch.location}</p>
+              <Link href={localizedHref("/contact")}>{branch.action}</Link>
+            </div>
+          ))}
         </div>
-
       </section>
-
-
-      {/*   MAP PLACEHOLDER     */}
 
       <section className="map-section">
-
         <div className="map-placeholder">
-
           <div className="map-content">
-
-            <div className="map-pin">
-              ⌖
-            </div>
-
-            <h3>
-              Find Us
-            </h3>
-
-            <p>
-              Our interactive map will be available here.
-            </p>
-
+            <div className="map-pin">⌖</div>
+            <h3>{messages.map.title}</h3>
+            <p>{messages.map.description}</p>
           </div>
-
         </div>
-
       </section>
-
-
-      {/* =========================
-          CTA
-      ========================= */}
 
       <section className="contact-cta">
-
         <div className="contact-cta-content">
-
-          <span className="section-label">
-            JOIN OUR COMMUNITY
-          </span>
-
-          <h2>
-            Ready to Begin Your
-            Quranic Learning Journey?
-          </h2>
-
-          <p>
-            Learn more about our programs and take the first step
-            toward a meaningful Quranic education.
-          </p>
-
-          <Link
-            href="/admissions"
-            className="contact-button"
-          >
-            Apply Now →
+          <span className="section-label">{messages.cta.label}</span>
+          <h2>{messages.cta.title}</h2>
+          <p>{messages.cta.description}</p>
+          <Link href={localizedHref("/admissions")} className="contact-button">
+            {messages.cta.apply}
           </Link>
-
         </div>
-
       </section>
-
     </main>
   );
 }

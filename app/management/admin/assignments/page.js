@@ -5,6 +5,8 @@ import Link from "next/link";
 import "../dashboard/dashboard.css";
 import "./assignments.css";
 import {
+  getStudentProfile,
+  getStudentProfiles,
   getServerStudentRosterSnapshot,
   getStudentRoster,
   getStudentRosterSnapshot,
@@ -62,6 +64,7 @@ export default function AdminAssignmentsPage() {
           subject: teacher.subject,
           student,
           studentIndex: index,
+          studentProfile: getStudentProfile(teacher, index),
         }))
       ),
     [teachers]
@@ -94,6 +97,9 @@ export default function AdminAssignmentsPage() {
           assignedStudents: teacher.assignedStudents.filter(
             (_, index) => index !== assignment.studentIndex
           ),
+          studentProfiles: getStudentProfiles(teacher).filter(
+            (_, index) => index !== assignment.studentIndex
+          ),
         };
       }
 
@@ -101,6 +107,10 @@ export default function AdminAssignmentsPage() {
         return {
           ...teacher,
           assignedStudents: [...teacher.assignedStudents, assignment.student],
+          studentProfiles: [
+            ...getStudentProfiles(teacher),
+            assignment.studentProfile,
+          ],
         };
       }
 

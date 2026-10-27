@@ -1,0 +1,69 @@
+{
+  "hero": {
+    "label": "GET IN TOUCH",
+    "title": "Contact Jafar Madrasa",
+    "description": "Have a question about our programs, admissions, or branches? We would be happy to hear from you."
+  },
+  "intro": {
+    "label": "WE ARE HERE TO HELP",
+    "title": "Let’s Start a Conversation",
+    "description": "Whether you are a parent looking for Quranic education for your child, a student interested in joining our programs, or simply want to learn more about Jafar Madrasa, feel free to contact us."
+  },
+  "information": {
+    "label": "CONTACT INFORMATION",
+    "title": "We’d Love to Hear From You",
+    "description": "Reach out to us through any of the following channels. Our team will do its best to respond to your inquiry.",
+    "phone": "Phone",
+    "phones": ["+251 123 456 789", "+251 987 654 321"],
+    "email": "Email",
+    "emails": ["info@jafarmadrasa.com"],
+    "address": "Address",
+    "addresses": ["Addis Ababa, Ethiopia", "Jafar Madrasa"],
+    "hours": "Office Hours",
+    "days": "Monday – Friday",
+    "time": "8:00 AM – 5:00 PM"
+  },
+  "formIntro": {
+    "label": "SEND US A MESSAGE",
+    "title": "How Can We Help?",
+    "description": "Fill out the form and send us your message. Whether you are a parent, student, or someone interested in learning more about Jafar Madrasa, we would be happy to hear from you."
+  },
+  "branches": {
+    "label": "OUR LOCATIONS",
+    "title": "Find a Jafar Madrasa Branch",
+    "description": "With multiple campuses, we are working to make Quranic and Islamic education accessible to more students and families.",
+    "items": [
+      {"name": "Main Branch", "location": "Addis Ababa, Ethiopia", "action": "Get Directions →"},
+      {"name": "Second Branch", "location": "Addis Ababa, Ethiopia", "action": "Get Directions →"},
+      {"name": "Other Branches", "location": "More locations coming soon", "action": "Contact Us →"}
+    ]
+  },
+  "map": {
+    "title": "Find Us",
+    "description": "Our interactive map will be available here."
+  },
+  "cta": {
+    "label": "JOIN OUR COMMUNITY",
+    "title": "Ready to Begin Your Quranic Learning Journey?",
+    "description": "Learn more about our programs and take the first step toward a meaningful Quranic education.",
+    "apply": "Apply Now →"
+  },
+  "form": {
+    "fullName": "Full Name",
+    "namePlaceholder": "Enter your full name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "phone": "Phone Number",
+    "phonePlaceholder": "+251 XX XXX XXXX",
+    "subject": "Subject",
+    "selectSubject": "Select a subject",
+    "subjects": ["Admission", "Programs", "Quran Education", "Branch Information", "General Inquiry"],
+    "message": "Your Message",
+    "messagePlaceholder": "Write your message here...",
+    "send": "Send Message →",
+    "close": "Close",
+    "sent": "Message Sent!",
+    "success": "Thank you for contacting Jafar Madrasa. Your message has been successfully submitted.",
+    "done": "Done"
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import {
+  getStudentProfile,
   getServerStudentRosterSnapshot,
   getStudentRoster,
   getStudentRosterSnapshot,
@@ -23,12 +24,18 @@ export function useManagerData() {
   );
   const teachers = getStudentRoster(rosterSnapshot);
   const students = teachers.flatMap((teacher) =>
-    teacher.assignedStudents.map((name, index) => ({
-      id: `${teacher.id}-${index}`,
-      name,
-      teacher: teacher.name,
-      subject: teacher.subject,
-    }))
+    teacher.assignedStudents.map((name, index) => {
+      const profile = getStudentProfile(teacher, index);
+
+      return {
+        id: profile?.id ?? `${teacher.id}-${index}`,
+        name,
+        age: profile?.age ?? null,
+        level: profile?.level ?? "Not recorded",
+        teacher: teacher.name,
+        subject: teacher.subject,
+      };
+    })
   );
 
   return {

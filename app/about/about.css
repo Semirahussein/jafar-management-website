@@ -221,7 +221,7 @@ overflow: hidden;
 
 .program-grid,
 .programs-grid {
-  display: grid;
+  display:grid;
 
   grid-template-columns: repeat(4, 1fr);
 

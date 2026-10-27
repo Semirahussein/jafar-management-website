@@ -1,0 +1,255 @@
+.parent-shell {
+  --parent-green: #123d29;
+  --parent-green-deep: #0d3020;
+  --parent-green-soft: #edf5ef;
+  --parent-gold: #d89a25;
+  --parent-text: #1a241d;
+  --parent-muted: #71817a;
+  --parent-border: #e7ece8;
+  --parent-surface: #ffffff;
+  --parent-panel: #f5f7f4;
+
+  min-height: 100vh;
+  display: flex;
+  background: var(--parent-panel);
+  color: var(--parent-text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.parent-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 256px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: 25px 17px 18px;
+  background: var(--parent-green-deep);
+  color: #fff;
+}
+
+.parent-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 2px 8px 28px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.parent-brand-mark {
+  width: 41px;
+  height: 41px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--parent-gold);
+  border-radius: 10px;
+  color: #f1bc55;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.parent-brand-text strong,
+.parent-brand-text small {
+  display: block;
+}
+
+.parent-brand-text strong {
+  font-size: 0.89rem;
+}
+
+.parent-brand-text small {
+  margin-top: 4px;
+  color: rgb(255 255 255 / 55%);
+  font-size: 0.68rem;
+}
+
+.parent-sidebar-label {
+  padding: 0 12px 10px;
+  color: rgb(255 255 255 / 42%);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.parent-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.parent-nav-link,
+.parent-logout-link {
+  min-height: 43px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: rgb(255 255 255 / 72%);
+  font-size: 0.79rem;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.parent-nav-link:hover,
+.parent-logout-link:hover,
+.parent-nav-link:focus-visible,
+.parent-logout-link:focus-visible {
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+}
+
+.parent-nav-link.active {
+  background: rgb(216 154 37 / 15%);
+  color: #efbb58;
+  font-weight: 700;
+}
+
+.parent-nav-icon {
+  width: 20px;
+  flex: 0 0 20px;
+  text-align: center;
+  font-size: 0.92rem;
+}
+
+.parent-user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+  padding: 17px 7px 4px;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.parent-user-box strong,
+.parent-user-box span {
+  display: block;
+}
+
+.parent-user-box strong {
+  font-size: 0.75rem;
+}
+
+.parent-user-box span {
+  margin-top: 4px;
+  color: rgb(255 255 255 / 52%);
+  font-size: 0.64rem;
+}
+
+.parent-user-avatar {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 13%);
+  color: #f1bc55;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.parent-user-avatar.small {
+  width: 32px;
+  height: 32px;
+  font-size: 0.64rem;
+}
+
+.parent-main {
+  width: calc(100% - 256px);
+  min-width: 0;
+  margin-left: 256px;
+}
+
+.parent-topbar {
+  height: 72px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 26px;
+  padding: 0 36px;
+  border-bottom: 1px solid var(--parent-border);
+  background: var(--parent-surface);
+}
+
+.parent-mobile-brand {
+  display: none;
+}
+
+.parent-topbar-date {
+  color: var(--parent-muted);
+  font-size: 0.74rem;
+}
+
+.parent-user-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.parent-user-details strong,
+.parent-user-details span {
+  display: block;
+}
+
+.parent-user-details strong {
+  font-size: 0.75rem;
+}
+
+.parent-user-details span {
+  margin-top: 2px;
+  color: var(--parent-muted);
+  font-size: 0.66rem;
+}
+
+.parent-page-shell {
+  padding: 28px 34px 42px;
+}
+
+.parent-section-title {
+  margin: 0 0 16px;
+  font-size: clamp(1.6rem, 2vw, 2.2rem);
+  color: var(--parent-green-deep);
+}
+
+.parent-subtitle {
+  margin: 0 0 24px;
+  color: var(--parent-muted);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 980px) {
+  .parent-shell {
+    display: block;
+  }
+
+  .parent-sidebar {
+    position: static;
+    width: 100%;
+    padding-bottom: 14px;
+  }
+
+  .parent-main {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .parent-topbar {
+    justify-content: space-between;
+    padding: 0 18px;
+  }
+
+  .parent-mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+  }
+
+  .parent-page-shell {
+    padding: 18px 18px 36px;
+  }
+}

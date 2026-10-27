@@ -209,3 +209,53 @@
     flex: 1;
   }
 }
+
+.admin-student-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-register-student-button {
+  display: inline-flex;
+  min-height: 37px;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border: 1px solid #1f6240;
+  border-radius: 7px;
+  background: #1f6240;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-register-student-button:hover {
+  border-color: #164b30;
+  background: #164b30;
+}
+
+.admin-register-student-button:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 3px;
+}
+
+.student-chip-name strong,
+.student-chip-details {
+  display: block;
+}
+
+.student-chip-details {
+  margin-top: 3px;
+  color: #849087;
+  font-size: 0.58rem;
+}
+
+@media (max-width: 680px) {
+  .admin-student-panel-actions {
+    align-items: flex-end;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
