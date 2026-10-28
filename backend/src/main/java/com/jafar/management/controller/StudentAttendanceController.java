@@ -18,6 +18,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/student-attendance")
@@ -45,22 +49,33 @@ public class StudentAttendanceController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'BRANCH_MANAGER', 'QURAN_TEACHER')")
-    public List<StudentAttendance> list(
+    public Page<StudentAttendance> list(
             @RequestParam(required = false) LocalDate date,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) Long studentId,
+            @RequestParam(required = false) Long branchId,
+            @RequestParam(required = false) AttendanceStatus status,
+            @RequestParam(required = false) String q,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal AppUser user) {
         
         LocalDate start = startDate != null ? startDate : (date != null ? date : LocalDate.now().minusYears(100));
         LocalDate end = endDate != null ? endDate : (date != null ? date : LocalDate.now().plusYears(100));
 
-        if (user.getRole() == UserRole.ADMINISTRATOR) {
-            return attendanceRepository.findAllByDateBetween(start, end);
-        } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            return attendanceRepository.findAllByBranchIdAndDateBetween(user.getBranchId(), start, end);
-        } else {
-            return attendanceRepository.findAllByTeacherIdAndDateBetween(user.getId(), start, end);
-        }
+        validateSearch(start, end, page, size);
+        Long scopedBranch = user.getRole() == UserRole.BRANCH_MANAGER ? user.getBranchId() : branchId;
+        Long scopedTeacher = user.getRole() == UserRole.QURAN_TEACHER ? user.getId() : null;
+        if (user.getRole() == UserRole.BRANCH_MANAGER && scopedBranch == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is not assigned to a branch");
+        return attendanceRepository.searchAttendance(start, end, scopedBranch, scopedTeacher, studentId, status,
+                q == null || q.isBlank() ? null : q.trim(),
+                PageRequest.of(page, size, Sort.by("date").descending().and(Sort.by("id").descending())));
+    }
+
+    private void validateSearch(LocalDate start, LocalDate end, int page, int size) {
+        if (start.isAfter(end)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date cannot be after end date");
+        if (page < 0 || size < 1 || size > 100) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page must be non-negative and size must be between 1 and 100");
     }
 
     @GetMapping("/student/{studentId}")
@@ -69,7 +84,7 @@ public class StudentAttendanceController {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !java.util.Objects.equals(user.getBranchId(), student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student not in your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
@@ -85,10 +100,10 @@ public class StudentAttendanceController {
         StudentAttendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(attendance.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !java.util.Objects.equals(user.getBranchId(), attendance.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Attendance not in your branch");
         }
-        if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(attendance.getTeacherId())) {
+        if (user.getRole() == UserRole.QURAN_TEACHER && !java.util.Objects.equals(user.getId(), attendance.getTeacherId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Attendance not assigned to you");
         }
 
@@ -101,10 +116,10 @@ public class StudentAttendanceController {
         Student student = studentRepository.findById(request.studentId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !java.util.Objects.equals(user.getBranchId(), student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot record attendance for student outside your branch");
         }
-        if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
+        if (user.getRole() == UserRole.QURAN_TEACHER && !java.util.Objects.equals(user.getId(), student.getTeacherId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot record attendance for student not assigned to you");
         }
 
@@ -121,7 +136,8 @@ public class StudentAttendanceController {
         attendance.setTeacherId(student.getTeacherId());
         attendance.setRemarks(request.remarks());
 
-        return attendanceRepository.save(attendance);
+        try { return attendanceRepository.saveAndFlush(attendance); }
+        catch (DataIntegrityViolationException duplicate) { throw new ResponseStatusException(HttpStatus.CONFLICT, "Attendance for this date already recorded", duplicate); }
     }
 
     @PutMapping("/{id}")
@@ -130,7 +146,7 @@ public class StudentAttendanceController {
         StudentAttendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(attendance.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !java.util.Objects.equals(user.getBranchId(), attendance.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot update attendance outside your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && (!user.getId().equals(attendance.getRecordedById()) && !user.getId().equals(attendance.getTeacherId()))) {
