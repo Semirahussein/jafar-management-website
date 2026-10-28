@@ -21,6 +21,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/quran-progress")
@@ -49,30 +52,30 @@ public class QuranProgressController {
 
     @GetMapping("")
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'BRANCH_MANAGER', 'QURAN_TEACHER')")
-    public List<QuranProgress> getProgressRecords(
+    public Page<QuranProgress> getProgressRecords(
             @RequestParam(required = false) Long studentId,
+            @RequestParam(required = false) Long teacherId,
+            @RequestParam(required = false) Long branchId,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) String surahName,
+            @RequestParam(required = false) String studentName,
+            @RequestParam(required = false) String teacherName,
             @RequestParam(required = false) ActivityType activityType,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal AppUser user) {
-        
-        List<QuranProgress> records;
-        if (user.getRole() == UserRole.ADMINISTRATOR) {
-            records = quranProgressRepository.findAll();
-        } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            records = quranProgressRepository.findAllByBranchId(user.getBranchId());
-        } else {
-            records = quranProgressRepository.findAllByTeacherId(user.getId());
-        }
-
-        return records.stream()
-                .filter(r -> studentId == null || r.getStudentId().equals(studentId))
-                .filter(r -> startDate == null || !r.getDate().isBefore(startDate))
-                .filter(r -> endDate == null || !r.getDate().isAfter(endDate))
-                .filter(r -> surahName == null || r.getSurahName().equalsIgnoreCase(surahName))
-                .filter(r -> activityType == null || r.getActivityType() == activityType)
-                .toList();
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date cannot be after end date");
+        if (page < 0 || size < 1 || size > 100) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Page must be non-negative and size must be between 1 and 100");
+        if (user.getRole() == UserRole.BRANCH_MANAGER && user.getBranchId() == null) throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Your account is not assigned to a branch");
+        Long scopeBranch = user.getRole() == UserRole.BRANCH_MANAGER ? user.getBranchId() : null;
+        Long scopeTeacher = user.getRole() == UserRole.QURAN_TEACHER ? user.getId() : null;
+        String surah = surahName == null || surahName.isBlank() ? null : surahName.trim();
+        return quranProgressRepository.searchProgress(scopeBranch, scopeTeacher, studentId, teacherId, branchId,
+                startDate, endDate, surah, activityType,
+                studentName == null || studentName.isBlank() ? null : studentName.trim(),
+                teacherName == null || teacherName.isBlank() ? null : teacherName.trim(),
+                PageRequest.of(page, size, Sort.by("date").descending().and(Sort.by("id").descending())));
     }
 
     @GetMapping("/student/{studentId}")

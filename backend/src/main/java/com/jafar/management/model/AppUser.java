@@ -36,6 +36,15 @@ public class AppUser implements UserDetails {
 
     private Long branchId;
 
+    @Column(length = 150)
+    private String fullName;
+
+    @Column(length = 254)
+    private String email;
+
+    @Column(length = 30)
+    private String phone;
+
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active = true;
 
@@ -53,11 +62,17 @@ public class AppUser implements UserDetails {
     public String getUsername() { return username; }
     public UserRole getRole() { return role; }
     public Long getBranchId() { return branchId; }
+    public String getFullName() { return fullName; }
+    public String getEmail() { return email; }
+    public String getPhone() { return phone; }
     public boolean isActive() { return active; }
     public void setUsername(String username) { this.username = username; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public void setRole(UserRole role) { this.role = role; }
     public void setBranchId(Long branchId) { this.branchId = branchId; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPhone(String phone) { this.phone = phone; }
     public void setActive(boolean active) { this.active = active; }
 
     @Override @JsonIgnore

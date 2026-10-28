@@ -41,6 +41,10 @@ export default function Navbar() {
           Contact Us
         </Link>
 
+        <Link href="/management">
+          Staff Portal
+        </Link>
+
       </div>
 
 
@@ -100,6 +104,13 @@ export default function Navbar() {
             onClick={() => setMenuOpen(false)}
           >
             Contact Us
+          </Link>
+
+          <Link
+            href="/management"
+            onClick={() => setMenuOpen(false)}
+          >
+            Staff Portal
           </Link>
 
           <Link
