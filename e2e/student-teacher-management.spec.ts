@@ -1,5 +1,4 @@
-import { test, expect, uniq, BASE_URL, ADMIN } from "./fixtures";
-import { newAuthenticatedApiContext, apiPost, expectOk } from "./utils/api-client";
+import { test, expect, uniq, ADMIN } from "./fixtures";
 import { uiLogin, uiLogout, goToSection, entityForm, filterForm, field, statusNotice } from "./utils/ui";
 
 // Workflow B: Student & teacher management, driven through the real UI as
@@ -33,18 +32,24 @@ test.describe("Workflow B: Student & teacher management (admin, real UI)", () =>
     await expect(page.getByRole("cell", { name: branchName })).toBeVisible();
   });
 
-  // GAP: there is no "Add user" control for Administrator/Branch Manager
-  // roles anywhere in the UI - the Users section (app/management/portal.js,
-  // "Users" tab) only lists and edits EXISTING accounts. Only QURAN_TEACHER
-  // accounts can be created through the UI, via Teachers -> "Add Quran
-  // teacher". Creating a Branch Manager account is therefore not a workflow
-  // the real UI supports today; this is left `fixme` rather than faked.
-  test.fixme(
-    "admin creates a Branch Manager account through the UI",
-    async () => {
-      /* no "Add user" / "Add Branch Manager" control exists in the Users section */
-    }
-  );
+  test("admin creates a Branch Manager account through the UI", async ({ page }) => {
+    branchManagerUsername = uniq("b-manager");
+    await uiLogin(page, ADMIN.username, ADMIN.password);
+    await goToSection(page, "Users");
+    await page.getByRole("button", { name: "Add user", exact: true }).click();
+    const form = entityForm(page);
+    await expect(field(form, "Role")).toHaveValue("BRANCH_MANAGER");
+    await form.getByLabel("Username").fill(branchManagerUsername);
+    await form.getByLabel("Initial password").fill(branchManagerPassword);
+    await field(form, "Branch").selectOption({ label: branchName });
+    await form.getByLabel("Full name").fill("Workflow B Manager");
+    await form.getByRole("button", { name: "Save account" }).click();
+    await expect(statusNotice(page)).toContainText(branchManagerUsername + " account created.");
+
+    await filterForm(page).getByLabel("Search", { exact: true }).fill(branchManagerUsername);
+    await filterForm(page).getByRole("button", { name: "Search", exact: true }).click();
+    await expect(page.getByRole("cell", { name: branchManagerUsername })).toBeVisible();
+  });
 
   test("admin creates a Quran Teacher through the UI", async ({ page }) => {
     await uiLogin(page, ADMIN.username, ADMIN.password);
@@ -108,27 +113,8 @@ test.describe("Workflow B: Student & teacher management (admin, real UI)", () =>
   test("the edited student is visible with the updated details from a Branch Manager's screen", async ({
     page,
   }) => {
-    // Create the Branch Manager out-of-band via the real API (see the fixme
-    // above - the UI itself has no control for this), scoped to the same
-    // branch created in the first test of this file.
-    const admin = await newAuthenticatedApiContext(BASE_URL, ADMIN.username, ADMIN.password);
-    branchManagerUsername = uniq("b-manager");
-    const branches = await expectOk(admin.get("/api/branches/search?q=" + encodeURIComponent(branchName)), "find branch");
-    const branchId = branches.content[0].id;
-    await expectOk(
-      apiPost(admin, "/api/users", {
-        username: branchManagerUsername,
-        password: branchManagerPassword,
-        role: "BRANCH_MANAGER",
-        branchId,
-        fullName: "Workflow B Manager",
-        email: "",
-        phone: "",
-      }),
-      "create workflow-B manager"
-    );
-    await admin.dispose();
-
+    // Branch Manager account was created through the real Users-section UI
+    // in the previous test of this file (same branch created in the first).
     await uiLogin(page, branchManagerUsername, branchManagerPassword);
     await goToSection(page, "Students");
     await filterForm(page).getByLabel("Search", { exact: true }).fill(studentNumber);

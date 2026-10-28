@@ -471,3 +471,67 @@ describe("Quran progress recording", () => {
     expect(Array.from(resultSelect.options).map(o => o.value)).toEqual(["EXCELLENT", "GOOD", "SATISFACTORY", "NEEDS_IMPROVEMENT", "INCOMPLETE"]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// User account management (Administrator/Branch Manager/Quran Teacher creation)
+// ---------------------------------------------------------------------------
+
+describe("User account management", () => {
+  const oneBranch = [{ id: 1, name: "Al-Noor Branch", active: true }];
+
+  async function openAddUserForm() {
+    const api = makeApi([
+      ...loggedOutRoutes(),
+      { method: "GET", match: "/auth/csrf", handler: () => ({}) },
+      { method: "POST", match: "/auth/login", handler: () => adminUser },
+      ...baseLoggedInRoutes({ user: adminUser, dashboard: adminDashboard(), branches: oneBranch }),
+      { method: "POST", match: "/users", handler: () => ({ id: 10, username: "manager2", role: "BRANCH_MANAGER", branchId: 1, active: true }) },
+    ]);
+    createApiClient.mockReturnValue(api);
+    const user = await signInAs({ api, username: "admin", password: "admin1234" });
+    await user.click(screen.getByRole("button", { name: "Users" }));
+    await screen.findByRole("heading", { name: "Users", level: 1 });
+    await user.click(screen.getByRole("button", { name: "Add user" }));
+    const form = within(screen.getByRole("heading", { name: "Create account" }).closest("form"));
+    return { api, user, form };
+  }
+
+  test("Add user form defaults to Branch Manager, requires username/password/branch, and offers all three roles", async () => {
+    const { form } = await openAddUserForm();
+
+    expect(form.getByLabelText("Username")).toBeRequired();
+    expect(form.getByLabelText("Initial password")).toBeRequired();
+    expect(form.getByLabelText("Branch")).toBeRequired();
+    expect(form.getByLabelText("Role").value).toBe("BRANCH_MANAGER");
+    expect(Array.from(form.getByLabelText("Role").options).map(o => o.value)).toEqual(["ADMINISTRATOR", "BRANCH_MANAGER", "QURAN_TEACHER"]);
+    expect(form.queryByLabelText("Status")).not.toBeInTheDocument();
+  });
+
+  test("creating a Branch Manager account posts the username, role, branch and password to POST /users", async () => {
+    const { api, user, form } = await openAddUserForm();
+
+    await user.type(form.getByLabelText("Username"), "manager2");
+    await user.type(form.getByLabelText("Initial password"), "supersecret123");
+    await user.selectOptions(form.getByLabelText("Branch"), "1");
+    await user.type(form.getByLabelText("Full name"), "Second Manager");
+    await user.click(form.getByRole("button", { name: "Save account" }));
+
+    await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("manager2 account created."));
+    const createCall = api.calls.find(c => c.method === "POST" && c.path === "/users");
+    expect(createCall.options.body).toMatchObject({ username: "manager2", role: "BRANCH_MANAGER", branchId: 1, password: "supersecret123", fullName: "Second Manager" });
+  });
+
+  test("switching the role to Administrator hides the branch field and omits branchId from the request", async () => {
+    const { api, user, form } = await openAddUserForm();
+
+    await user.selectOptions(form.getByLabelText("Role"), "ADMINISTRATOR");
+    expect(form.queryByLabelText("Branch")).not.toBeInTheDocument();
+    await user.type(form.getByLabelText("Username"), "admin2");
+    await user.type(form.getByLabelText("Initial password"), "supersecret123");
+    await user.click(form.getByRole("button", { name: "Save account" }));
+
+    await waitFor(() => expect(api.calls.some(c => c.method === "POST" && c.path === "/users")).toBe(true));
+    const createCall = api.calls.find(c => c.method === "POST" && c.path === "/users");
+    expect(createCall.options.body).toMatchObject({ username: "admin2", role: "ADMINISTRATOR", branchId: null });
+  });
+});

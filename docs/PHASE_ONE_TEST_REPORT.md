@@ -96,26 +96,26 @@ These boot the **real** Spring context (`@SpringBootTest` + `@AutoConfigureMockM
 
 ## 5. Frontend-test results
 
-**32 tests, 32 passing, 0 failing.** Plus clean `npm run lint` (0 errors/warnings) and clean `npm run build` (production build succeeds, 8 static routes generated).
+**35 tests, 35 passing, 0 failing.** Plus clean `npm run lint` (0 errors/warnings) and clean `npm run build` (production build succeeds).
 
 | File | Tests | Covers |
 |---|---|---|
 | `app/lib/report-period.test.mjs` | 5 | Date-math for daily/weekly/monthly/custom report periods (ported from the pre-existing Node-test-runner file to Vitest, same assertions, REPORT-009) |
 | `app/lib/api.test.mjs` | 10 | HTTP client: headers, CSRF header injection, 401 → `jafar:session-expired` event (except on `/auth/login`, `/auth/me`, `/auth/csrf`), 204 handling, error-body fallback |
-| `app/management/portal.test.jsx` | 17 | Login/validation/error states, role-based navigation (Administrator/Branch Manager/Quran Teacher), dashboard rendering + API-failure handling, logout, session expiration (AUTH-009), student search reset (SEARCH-008), student registration validation, attendance form + duplicate-record error, Quran progress form |
+| `app/management/portal.test.jsx` | 20 | Login/validation/error states, role-based navigation (Administrator/Branch Manager/Quran Teacher), dashboard rendering + API-failure handling, logout, session expiration (AUTH-009), student search reset (SEARCH-008), student registration validation, attendance form + duplicate-record error, Quran progress form, and Administrator/Branch Manager/Quran Teacher account creation via the Users section's "Add user" form (added alongside the §10a feature fix) |
 
-All 17 `portal.test.jsx` tests mock the API client at the module boundary — these are isolated component tests (per the test strategy's own L1/component-test definition), not integration tests; real backend interaction for the same user flows is covered in §6.
+All 20 `portal.test.jsx` tests mock the API client at the module boundary — these are isolated component tests (per the test strategy's own L1/component-test definition), not integration tests; real backend interaction for the same user flows is covered in §6.
 
 ---
 
 ## 6. End-to-end test results (real browser, real frontend, real backend — no mocks)
 
-**30 specs: 29 passing, 1 documented `test.fixme` (a real product gap, not a test failure).** Stable across 2 consecutive clean-start runs during implementation and a further clean-start run I ran myself independently afterward (also 29 passed / 1 skipped, ~1.3 minutes).
+**30 specs: 30/30 passing, 0 skipped.** Stable across 4 consecutive clean-start runs (2 during implementation, 2 more that I ran myself independently afterward, ~1.2–1.3 minutes each).
 
 | Workflow | Spec file | Result |
 |---|---|---|
 | A — Authentication | `e2e/auth.spec.ts` | 7/7 pass |
-| B — Student & teacher management | `e2e/student-teacher-management.spec.ts` | 6/7 pass, 1 `fixme` |
+| B — Student & teacher management | `e2e/student-teacher-management.spec.ts` | 7/7 pass |
 | C — Branch management & restrictions | `e2e/branch-restrictions.spec.ts` | 3/3 pass |
 | D — Attendance | `e2e/attendance.spec.ts` | 5/5 pass |
 | E — Quran progress | `e2e/quran-progress.spec.ts` | 1/1 pass |
@@ -124,7 +124,7 @@ All 17 `portal.test.jsx` tests mock the API client at the module boundary — th
 | H — Search & filtering | `e2e/search-filter.spec.ts` | 3/3 pass |
 | I — Cross-session persistence & authorization (3 real isolated browser contexts) | `e2e/cross-session.spec.ts` | 1/1 pass |
 
-The single `fixme` ("admin creates a Branch Manager account through the UI") is **not a test or app code defect** — it's a genuine missing UI feature: the backend fully supports creating Administrator/Branch Manager accounts (verified in §4, `UserManagementIntegrationTest`), but the current "Users" screen in `app/management/portal.js` only edits existing accounts, and the only account-creation control in the UI is "Add Quran teacher". See §12.
+Workflow B's "admin creates a Branch Manager account through the UI" test was initially shipped as a `test.fixme` — a genuine missing UI feature, not a test or app defect: the backend already supported creating Administrator/Branch Manager accounts (§4, `UserManagementIntegrationTest`), but the "Users" screen in `app/management/portal.js` only edited existing accounts, with "Add Quran teacher" as the only creation control. **That gap has since been closed** (see §10a below): the Users section now has an "Add user" control for all three roles, the `fixme` was replaced with a real passing test, and a later test in the same file that used to create its Branch Manager fixture out-of-band via a raw API call now creates it through the same real UI control instead.
 
 This closes the test strategy document's previously-flagged "critical" gap: zero E2E coverage, and the "complete lifecycle" workflow (branch → manager → teacher → student → attendance/progress → report submit/review) that was explicitly called out as not yet automated is now exercised end-to-end as a chain of cooperating Playwright specs.
 
@@ -166,7 +166,7 @@ The full row-by-row requirement traceability matrix is maintained in **[`docs/TE
 | **Failed** | 0 | — |
 | **Not run / blocked, undocumented** | 0 | Every row has an explicit, honest status; none were silently skipped |
 
-0 rows remain in the original "Not Run" state. 1 real application defect was found and fixed along the way (§10), with a regression test now passing in its place.
+0 rows remain in the original "Not Run" state. 1 real backend data-integrity defect, 1 real frontend UX defect, and 1 real product gap (missing account-creation UI) were found along the way and fixed (§10), each with regression coverage now passing in its place.
 
 Test counts by layer (all independently re-verified by me after implementation):
 
@@ -174,9 +174,9 @@ Test counts by layer (all independently re-verified by me after implementation):
 |---|---|---|---|
 | Backend unit | 44 | 44 | Mocked repositories (pre-existing) |
 | Backend integration/persistence/security | 109 | 109 | **Real** H2 DB + real Spring Security filter chain |
-| Frontend component/unit | 32 | 32 | **Mocked** API client (isolated component tests, by design) |
-| E2E (browser) | 30 | 29 (+1 fixme, a product gap not a failure) | **Real** backend + **real** database (H2, isolated) + **real** browser |
-| **Total automated tests** | **215** | **214 passing, 1 fixme** | |
+| Frontend component/unit | 35 | 35 | **Mocked** API client (isolated component tests, by design) |
+| E2E (browser) | 30 | 30 | **Real** backend + **real** database (H2, isolated) + **real** browser |
+| **Total automated tests** | **218** | **218 passing** | |
 
 ---
 
@@ -194,12 +194,19 @@ Test counts by layer (all independently re-verified by me after implementation):
    **Fix:** one line, `overflow-y: auto` added to `.portal-sidebar`.
    **Regression coverage:** `e2e/auth.spec.ts` logout spec now exercises this path in a real browser at a realistic viewport.
 
+### §10a. Product gap closed (a missing feature, not a bug fix)
+
+3. **No UI control to create Administrator or Branch Manager accounts — `app/management/portal.js`.**
+   The backend fully supported it (`POST /api/users`, `UserManagementIntegrationTest`, USER-001/002), but the Users section only edited existing accounts, and the only account-creation control anywhere in the UI was "Add Quran teacher." This was surfaced by this task's own E2E pass as a `test.fixme` rather than faked (see §6), and flagged as the top recommended next step.
+   **Implemented:** the Users section now has an "Add user" button (admin-only, matching the backend's `@PreAuthorize("hasRole('ADMINISTRATOR')")`) opening a create form for any of the three roles — username, role, branch (required unless Administrator, hidden entirely for Administrator), full name, email, phone, and a required initial password (≥12 characters, matching the backend's validation). `saveUser()` now branches between `POST /api/users` (create) and the pre-existing `PUT /api/users/{id}` (edit), reusing the exact same form.
+   **Test coverage added:** 3 new Vitest/RTL component tests (`portal.test.jsx`) and a real Playwright E2E test replacing the former `test.fixme` (`e2e/student-teacher-management.spec.ts`, "admin creates a Branch Manager account through the UI") — the latter also let a *second* existing E2E test in the same file, which previously had to create its Branch Manager fixture out-of-band via a raw authenticated API call, switch to creating it through the same real UI control instead.
+
 ### Build/tooling defects (pre-existing, found while trying to run the required gates)
 
-3. **`package.json` had no `test` script at all** — meaning the existing GitHub Actions release workflow (`.github/workflows/npm-publish-github-packages.yml`, step `run: npm test`) was already broken before this task started. Fixed by adding `"test": "vitest run"`.
-4. **`npm run lint` was already hard-failing** (`Cannot find module 'typescript'`) because `eslint-config-next` requires `typescript-eslint`, which requires `typescript`, which was never listed as a dependency. Fixed by adding `typescript` (pinned `~5.7.0` — the bundled `typescript-eslint@8.68.0` rejects `7.0`) as a devDependency.
-5. **`backend/pom.xml`: H2's dependency scope had to be `runtime`, not `test`.** `application-e2e.properties` lives under `src/main/resources` so it's read by an actually-running `spring-boot:run` process, which doesn't see `test`-scoped dependencies — with `test` scope the app failed to boot for E2E (`Cannot load driver class: org.h2.Driver`), reproduced and confirmed before fixing.
-6. **ESLint flagged `e2e/fixtures.ts` as a React Hook violation** (Playwright's own `use` fixture parameter name collided with the `react-hooks/rules-of-hooks` naming heuristic), which I found and fixed myself during final independent verification by excluding `e2e/**` and `playwright.config.ts` from the Next.js lint config — they are test-automation code, not application code, and were never in scope for React-specific lint rules.
+4. **`package.json` had no `test` script at all** — meaning the existing GitHub Actions release workflow (`.github/workflows/npm-publish-github-packages.yml`, step `run: npm test`) was already broken before this task started. Fixed by adding `"test": "vitest run"`.
+5. **`npm run lint` was already hard-failing** (`Cannot find module 'typescript'`) because `eslint-config-next` requires `typescript-eslint`, which requires `typescript`, which was never listed as a dependency. Fixed by adding `typescript` (pinned `~5.7.0` — the bundled `typescript-eslint@8.68.0` rejects `7.0`) as a devDependency.
+6. **`backend/pom.xml`: H2's dependency scope had to be `runtime`, not `test`.** `application-e2e.properties` lives under `src/main/resources` so it's read by an actually-running `spring-boot:run` process, which doesn't see `test`-scoped dependencies — with `test` scope the app failed to boot for E2E (`Cannot load driver class: org.h2.Driver`), reproduced and confirmed before fixing.
+7. **ESLint flagged `e2e/fixtures.ts` as a React Hook violation** (Playwright's own `use` fixture parameter name collided with the `react-hooks/rules-of-hooks` naming heuristic), which I found and fixed myself during final independent verification by excluding `e2e/**` and `playwright.config.ts` from the Next.js lint config — they are test-automation code, not application code, and were never in scope for React-specific lint rules.
 
 ### Documentation corrections (RTM expectations vs. real, correct behavior — not defects)
 
@@ -219,18 +226,18 @@ Full raw tool output for every run (backend `mvn -o test`, frontend `npm run lin
 ```
 Backend:  mvn -o test   → Tests run: 153, Failures: 0, Errors: 0, Skipped: 0 — BUILD SUCCESS
 Frontend: npm run lint  → (clean, 0 errors/warnings)
-          npm test      → Test Files 3 passed (3), Tests 32 passed (32)
-          npm run build → ✓ Compiled successfully, 8 static routes generated
-E2E:      npx playwright test → 29 passed, 1 skipped (fixme) (1.3m), ports 3000/8080 clean afterward
+          npm test      → Test Files 3 passed (3), Tests 35 passed (35)
+          npm run build → ✓ Compiled successfully
+E2E:      npx playwright test → 30 passed, 0 skipped (1.2–1.3m per run), ports 3000/8080 clean afterward
 ```
 
-Each implementation pass additionally captured specific reproduction steps for the two genuine defects in §10 (exact Playwright bounding-box/scroll measurements for the sidebar bug; the exact duplicate-insert SQL exception for the persistence constraint tests; the exact `DataIntegrityViolationException`/`409` sequence for the student-delete guard) — preserved in the corresponding test classes/specs themselves as the executable reproduction.
+Each implementation pass additionally captured specific reproduction steps for the defects in §10 (exact Playwright bounding-box/scroll measurements for the sidebar bug; the exact duplicate-insert SQL exception for the persistence constraint tests; the exact `DataIntegrityViolationException`/`409` sequence for the student-delete guard) — preserved in the corresponding test classes/specs themselves as the executable reproduction.
 
 ---
 
 ## 12. Remaining gaps and recommended next steps
 
-1. **No UI to create Administrator or Branch Manager accounts.** The backend fully supports it (`UserManagementIntegrationTest`, USER-001/002), but `app/management/portal.js`'s "Users" section only edits existing accounts, and the only creation control is "Add Quran teacher." This is a real Phase One completeness gap, not a test gap — recommend prioritizing this for the next frontend iteration since account provisioning for new branches currently requires direct API calls.
+1. ~~No UI to create Administrator or Branch Manager accounts.~~ **Closed** — see §10a. The Users section now has an "Add user" control for all three roles, with real component and E2E test coverage.
 2. **`NOTIF-004`/`NOTIF-007` (notification delivery SEND/FAILED transitions)** remain unverified against a real provider because no concrete `NotificationDeliveryProvider` is wired up yet — this is consistent with the SRS explicitly deferring external SMS/WhatsApp integration past Phase One. Recommend a lightweight in-memory fake provider test double, specifically to verify the state-machine transitions, before this becomes a bigger gap.
 3. **`ERR-004` (resilience when the database is unreachable)** is only verified by the old mock-based unit test; it was not feasible to simulate "MySQL down" meaningfully against H2. Recommend a short, separate manual or scripted smoke test against the real MySQL instance (stop the service, hit `/api/auth/login`, confirm `503`) before production deployment.
 4. **No automated test has ever run against the real MySQL engine** (only H2 in MySQL-compatibility mode, for every layer). H2 compatibility mode is a very good proxy but is not identical to MySQL (collation, some function behavior, strict mode nuances). The original test strategy document flagged this as "Assumption 1" and recommended maintaining a small dedicated MySQL smoke-test pass before each release — still open, recommended as a follow-up.
@@ -238,4 +245,4 @@ Each implementation pass additionally captured specific reproduction steps for t
 6. **Frontend component coverage does not yet reach** the report draft/submit/review UI, parent-notification UI, or branch CRUD UI at the component-test level (it is covered at the E2E level in §6, and at the backend integration level in §4) — `portal.js` is a 744-line single file; a deeper component-test pass is a reasonable next investment if that file keeps growing.
 7. A true MySQL-backed integration smoke test and a CI pipeline wiring (`mvn test`, `npm test`/`lint`/`build`, `npx playwright test`) are recommended next steps to keep this suite from regressing — none of the above currently runs automatically on push/PR.
 
-**Bottom line:** Phase One's automated test suite grew from 49 tests (44 real + 5 frontend, both pre-existing, zero integration/persistence/security/E2E coverage) to **215 tests across unit, real-database integration, security-filter-chain, frontend-component, and real-browser end-to-end layers, 214 passing and 1 honestly documented product gap**. One real backend data-integrity defect and one real frontend UX defect were found and fixed with minimal, targeted patches and regression coverage. No test was weakened, deleted, or marked passing without a real, reproducible execution behind it.
+**Bottom line:** Phase One's automated test suite grew from 49 tests (44 real + 5 frontend, both pre-existing, zero integration/persistence/security/E2E coverage) to **218 tests across unit, real-database integration, security-filter-chain, frontend-component, and real-browser end-to-end layers — all 218 passing**. One real backend data-integrity defect, one real frontend UX defect, and one real missing-feature gap (account-creation UI) were found and fixed with minimal, targeted patches and regression coverage. No test was weakened, deleted, or marked passing without a real, reproducible execution behind it.
