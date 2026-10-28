@@ -1,0 +1,133 @@
+.register-student-content {
+  max-width: 1050px;
+}
+
+.register-back-link {
+  margin-right: auto;
+  color: #23633c;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.register-student-panel {
+  max-width: 720px;
+  padding: 26px;
+  border: 1px solid #e7ebe7;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 3%);
+}
+
+.register-student-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 19px 16px;
+}
+
+.register-student-form > label {
+  display: grid;
+  gap: 7px;
+  color: #35443a;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.register-student-form input,
+.register-student-form select {
+  width: 100%;
+  min-height: 43px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #dfe5df;
+  border-radius: 7px;
+  background: #fff;
+  color: #18231d;
+  font: inherit;
+  font-size: 0.76rem;
+}
+
+.register-student-form input::placeholder {
+  color: #9aa39d;
+}
+
+.register-student-form input:focus-visible,
+.register-student-form select:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 2px;
+}
+
+.register-student-form select:disabled {
+  background: #f2f4f2;
+  color: #89938c;
+}
+
+.register-student-error {
+  grid-column: 1 / -1;
+  color: #b42318;
+  font-size: 0.74rem;
+}
+
+.register-student-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+}
+
+.register-student-actions a,
+.register-student-actions button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 15px;
+  border: 1px solid #dfe5df;
+  border-radius: 7px;
+  background: #fff;
+  color: #58665c;
+  font: inherit;
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.register-student-actions button {
+  border-color: #1f6240;
+  background: #1f6240;
+  color: #fff;
+}
+
+.register-student-actions button:hover:not(:disabled) {
+  border-color: #164b30;
+  background: #164b30;
+}
+
+.register-student-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.register-student-actions a:focus-visible,
+.register-student-actions button:focus-visible,
+.register-back-link:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 3px;
+}
+
+@media (max-width: 680px) {
+  .register-student-panel {
+    padding: 20px 16px;
+  }
+
+  .register-student-form {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .register-student-error,
+  .register-student-actions {
+    grid-column: 1;
+  }
+}

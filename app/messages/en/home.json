@@ -1,0 +1,137 @@
+{
+  "hero": {
+    "tag": "Welcome to JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER",
+    "description": "Empowering minds through Islamic education and Quranic teachings.",
+    "learnMore": "LEARN MORE",
+    "login": "LOGIN"
+  },
+  "features": {
+    "cards": [
+      {
+        "title": "Quran education",
+        "description": "Comprehensive Quranic education designed to help students build a strong connection with the Quran."
+      },
+      {
+        "title": "Qualified Teachers",
+        "description": "Learn from experienced and knowledgeable Quran teachers who are dedicated to providing high-quality Islamic education."
+      },
+      {
+        "title": "Multiple Branches",
+        "description": "Providing Islamic education in multiple locations."
+      }
+    ]
+  },
+  "about": {
+    "title": "About Our Madrasa",
+    "paragraph1": "JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER is dedicated to providing high-quality Islamic education and Quranic teachings to students of all ages. Our mission is to empower minds through knowledge and spiritual growth.",
+    "paragraph2": "Our goal is to create a safe and supportive learning environment where every student can grow spiritually and academically.",
+    "learnMore": "LEARN MORE"
+  },
+  "programs": {
+    "title": "Our Programs",
+    "description": "Explore our diverse range of programs designed to cater to the needs of students at different levels of Islamic education.",
+    "viewAll": "VIEW ALL PROGRAMS",
+    "cards": [
+      {
+        "name": "QAIDA",
+        "description": "Learn the fundamentals of Quranic recitation and pronunciation."
+      },
+      {
+        "name": "TAJWEED",
+        "description": "Master the rules of Tajweed to enhance your Quranic recitation."
+      },
+      {
+        "name": "NAZAR",
+        "description": "Learn to read the Quran correctly with proper pronunciation and guidance."
+      },
+      {
+        "name": "HIFZ",
+        "description": "Memorize the entire Quran with our structured Hifz program."
+      },
+      {
+        "name": "ISLAMIC STUDIES",
+        "description": "Gain a deeper understanding of Islamic teachings like Aqeedah, Fiqh, Hadeeth, Seerah, and Islamic Manners."
+      }
+    ]
+  },
+  "whyUs": {
+    "title": "Why Choose Us",
+    "description": "Discover the unique advantages of learning at JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER.",
+    "cards": [
+      {
+        "number": "01",
+        "title": "Qualified and Experienced Teachers",
+        "description": "Our teachers are highly qualified and experienced in teaching Quran and Islamic studies, ensuring that students receive the best education possible."
+      },
+      {
+        "number": "02",
+        "title": "Comprehensive Curriculum",
+        "description": "We offer a comprehensive curriculum that covers all aspects of Quranic education and Islamic studies, catering to students of all ages and levels."
+      },
+      {
+        "number": "03",
+        "title": "Supportive Learning Environment",
+        "description": "We provide a supportive and nurturing learning environment where students can grow spiritually and academically."
+      },
+      {
+        "number": "04",
+        "title": "Multiple Branches",
+        "description": "We have multiple branches to make our programs accessible to students in different locations."
+      },
+      {
+        "number": "05",
+        "title": "Student Progress Tracking",
+        "description": "We provide comprehensive progress tracking to monitor and support each student's learning journey."
+      },
+      {
+        "number": "06",
+        "title": "Community Engagement",
+        "description": "We actively engage with the community through events, workshops, and outreach programs to promote Islamic education and values."
+      }
+    ]
+  },
+  "cta": {
+    "eyebrow": "JOIN OUR COMMUNITY",
+    "title": "Ready to Start Your Child's Islamic Education Journey?",
+    "description": "Join JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER today and embark on a path of knowledge and spiritual growth.",
+    "contact": "Contact Us"
+  },
+  "footer": {
+    "brand": "☪️JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER",
+    "tagline": "Nurturing faith, knowledge, character, and a lifelong connection with the Quran.",
+    "quickLinks": {
+      "title": "Quick Links",
+      "items": [
+        "Home",
+        "About Us",
+        "Programs",
+        "Admissions"
+      ]
+    },
+    "branches": {
+      "title": "Our Branches",
+      "items": [
+        "Main Branch",
+        "Farqadah Branch",
+        "Girls Branch"
+      ]
+    },
+    "contact": {
+      "title": "Contact Us",
+      "items": [
+        "Email: info@jafarutoyar.com",
+        "Phone: +251 (123) 456-7890",
+        "Address: Shaggar City, Ethiopia"
+      ]
+    },
+    "social": {
+      "title": "Follow Us",
+      "items": [
+        "Facebook",
+        "Twitter",
+        "Instagram"
+      ]
+    },
+    "copyright": "© {year} JAFARU TOYAR QURAN AND ISLAMIC EDUCATION CENTER. All rights reserved."
+  }
+}

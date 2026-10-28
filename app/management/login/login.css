@@ -1,0 +1,639 @@
+
+
+.login-page {
+  min-height: 100vh;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  background: #f8f7f2;
+}
+
+
+/* LEFT BRANDING SECTION */
+
+.login-brand {
+  position: relative;
+
+  min-height: 100vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  padding: 70px;
+
+  box-sizing: border-box;
+
+  background: #0f3d21;
+
+  color: white;
+
+  overflow: hidden;
+}
+
+
+/* Decorative circles */
+
+.login-brand::before {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(245, 158, 11, 0.2);
+
+  top: -180px;
+  left: -180px;
+}
+
+.login-brand::after {
+  content: "";
+
+  position: absolute;
+
+  width: 500px;
+  height: 500px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  bottom: -250px;
+  right: -250px;
+}
+
+
+/*   BRAND CONTENT*/
+
+.brand-content {
+  position: relative;
+
+  z-index: 2;
+
+  max-width: 520px;
+
+  margin: 0 auto;
+}
+
+
+.brand-logo {
+  width: 58px;
+  height: 58px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 25px;
+
+  border: 2px solid #f59e0b;
+
+  border-radius: 12px;
+
+  color: #f59e0b;
+
+  font-size: 1.2rem;
+
+  font-weight: 800;
+
+  letter-spacing: 1px;
+}
+
+
+.brand-content h1 {
+  margin: 0;
+
+  font-size: clamp(2rem, 4vw, 3.2rem);
+
+  line-height: 1.1;
+
+  font-weight: 700;
+}
+
+
+.brand-subtitle {
+  margin: 10px 0 25px;
+
+  color: #f59e0b;
+
+  font-size: 1.05rem;
+
+  font-weight: 600;
+
+  letter-spacing: 0.5px;
+}
+
+
+.brand-divider {
+  width: 55px;
+
+  height: 3px;
+
+  margin-bottom: 25px;
+
+  background: #f59e0b;
+
+  border-radius: 5px;
+}
+
+
+.brand-description {
+  max-width: 470px;
+
+  margin: 0 0 35px;
+
+  color: rgba(255, 255, 255, 0.78);
+
+  font-size: 0.95rem;
+
+  line-height: 1.8;
+}
+
+
+/*   FEATURES */
+
+.brand-features {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+
+.brand-feature {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  color: rgba(255, 255, 255, 0.9);
+
+  font-size: 0.9rem;
+}
+
+
+.feature-icon {
+  width: 23px;
+  height: 23px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(245, 158, 11, 0.15);
+
+  color: #f59e0b;
+
+  font-size: 0.75rem;
+
+  font-weight: 700;
+}
+
+
+/* =========================================
+   BRAND FOOTER
+========================================= */
+
+.brand-footer {
+  position: absolute;
+
+  bottom: 30px;
+  left: 70px;
+
+  color: rgba(255, 255, 255, 0.45);
+
+  font-size: 0.75rem;
+}
+
+
+/* =========================================
+   RIGHT LOGIN SECTION
+========================================= */
+
+.login-section {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 40px;
+
+  box-sizing: border-box;
+}
+
+
+.login-card {
+  width: 100%;
+
+  max-width: 450px;
+}
+
+
+/* =========================================
+   LOGIN HEADER
+========================================= */
+
+.login-header {
+  margin-bottom: 35px;
+}
+
+
+.login-label {
+  display: inline-block;
+
+  margin-bottom: 12px;
+
+  color: #0f3d21;
+
+  font-size: 0.72rem;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+
+.login-header h2 {
+  margin: 0 0 10px;
+
+  color: #111827;
+
+  font-size: 2.1rem;
+
+  line-height: 1.2;
+}
+
+
+.login-header p {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 0.9rem;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================
+   FORM
+========================================= */
+
+.login-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 22px;
+}
+
+
+.input-group {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+
+.input-group label {
+  color: #111827;
+
+  font-size: 0.82rem;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   PASSWORD LABEL
+========================================= */
+
+.password-label {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+
+.forgot-password {
+  border: none;
+
+  padding: 0;
+
+  background: transparent;
+
+  color: #0f3d21;
+
+  font-family: inherit;
+
+  font-size: 0.78rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.forgot-password:hover {
+  color: #f59e0b;
+}
+
+
+/* =========================================
+   INPUTS
+========================================= */
+
+.input-group input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 13px 14px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 7px;
+
+  background: white;
+
+  color: #111827;
+
+  font-family: inherit;
+
+  font-size: 0.88rem;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+
+.input-group input:focus {
+  border-color: #0f3d21;
+
+  box-shadow: 0 0 0 3px rgba(15, 61, 33, 0.08);
+}
+
+
+/* =========================================
+   PASSWORD INPUT
+========================================= */
+
+.password-input {
+  position: relative;
+}
+
+
+.password-input input {
+  padding-right: 70px;
+}
+
+
+.show-password {
+  position: absolute;
+
+  top: 50%;
+  right: 12px;
+
+  transform: translateY(-50%);
+
+  border: none;
+  padding: 4px 6px;
+
+  background: transparent;
+
+  color: #0f3d21;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  z-index: 2;
+}
+
+.show-password:hover {
+  color: #f59e0b;
+}
+
+.show-password:focus {
+  outline: none;
+}
+
+
+/* =========================================
+   REMEMBER ME
+========================================= */
+
+.login-options {
+  margin-top: -5px;
+}
+
+
+.remember-me {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  color: #6b7280;
+
+  font-size: 0.8rem;
+
+  cursor: pointer;
+}
+
+
+.remember-me input {
+  width: 15px;
+  height: 15px;
+
+  accent-color: #0f3d21;
+
+  cursor: pointer;
+}
+
+
+/* =========================================
+   LOGIN BUTTON
+========================================= */
+
+.login-button {
+  width: 100%;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 7px;
+
+  background: #0f3d21;
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 0.9rem;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+.login-button:hover {
+  background: #0b3019;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 20px rgba(15, 61, 33, 0.15);
+}
+
+
+.login-button:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================
+   LOGIN FOOTER
+========================================= */
+
+.login-footer {
+  margin-top: 35px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid #e5e7eb;
+
+  text-align: center;
+}
+
+
+.login-footer p {
+  margin: 0 0 5px;
+
+  color: #9ca3af;
+
+  font-size: 0.72rem;
+}
+
+
+.login-footer span {
+  color: #6b7280;
+
+  font-size: 0.7rem;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 900px) {
+
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand {
+    min-height: auto;
+
+    padding: 50px 40px;
+  }
+
+  .brand-footer {
+    display: none;
+  }
+
+  .brand-content {
+    max-width: 650px;
+  }
+
+  .brand-description {
+    max-width: 600px;
+  }
+
+  .brand-features {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .login-section {
+    min-height: auto;
+
+    padding: 60px 30px;
+  }
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .login-brand {
+    padding: 40px 25px;
+  }
+
+  .brand-content h1 {
+    font-size: 2rem;
+  }
+
+  .brand-description {
+    font-size: 0.85rem;
+  }
+
+  .brand-features {
+    grid-template-columns: 1fr;
+  }
+
+  .login-section {
+    padding: 45px 22px;
+  }
+
+  .login-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .login-card {
+    max-width: 100%;
+  }
+}
+

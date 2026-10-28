@@ -1,0 +1,62 @@
+{
+  "hero": {
+    "label": "OUR PROGRAMS",
+    "titleStart": "Learning the Quran,",
+    "titleEnd": "Growing in Faith",
+    "description": "Our programs are designed to help students build a strong relationship with the Quran, improve their recitation, memorize with confidence, and develop Islamic knowledge."
+  },
+  "intro": {
+    "label": "WHAT WE OFFER",
+    "title": "Programs Designed for Every Learning Journey",
+    "description": "At Jafar Madrasa, we understand that every student has a different learning journey. Our programs provide structured Quranic and Islamic education while allowing students to progress according to their abilities and goals."
+  },
+  "cards": [
+    {
+      "type": "QURAN",
+      "title": "Quran Recitation",
+      "description": "Students learn to read the Quran correctly and confidently while developing accurate pronunciation and consistent recitation habits.",
+      "items": ["Quran reading fundamentals", "Correct pronunciation", "Regular recitation practice", "Individual teacher guidance"]
+    },
+    {
+      "type": "MEMORIZATION",
+      "title": "Hifz Program",
+      "description": "A structured program for students who want to memorize the Quran while maintaining regular revision and strengthening their memorization.",
+      "items": ["New Quran memorization", "Daily revision", "Memorization progress tracking", "Teacher feedback"]
+    },
+    {
+      "type": "TAJWEED",
+      "title": "Tajweed",
+      "description": "Students learn the rules of Tajweed and apply them during Quran recitation to improve accuracy and pronunciation.",
+      "items": ["Tajweed rules", "Makharij", "Quranic pronunciation", "Practical recitation"]
+    },
+    {
+      "type": "ISLAMIC EDUCATION",
+      "title": "Islamic Studies",
+      "description": "Students develop foundational Islamic knowledge and learn important principles that help them understand and practice their faith.",
+      "items": ["Islamic manners and character", "Basic Islamic knowledge", "Stories of the Prophets", "Daily Islamic practices"]
+    }
+  ],
+  "learning": {
+    "label": "HOW STUDENTS LEARN",
+    "title": "A Structured Learning Journey",
+    "description": "We combine regular lessons, practice, progress tracking, and teacher guidance to support every student’s development.",
+    "steps": [
+      {"title": "Learn", "description": "Students receive lessons and guidance from their Quran teachers."},
+      {"title": "Practice", "description": "Students practice their recitation, memorization, and Islamic knowledge regularly."},
+      {"title": "Progress", "description": "Teachers monitor each student’s progress and provide feedback throughout their learning journey."},
+      {"title": "Grow", "description": "Students build confidence, consistency, knowledge, and a stronger connection with the Quran."}
+    ]
+  },
+  "parents": {
+    "label": "PARENTS & STUDENTS",
+    "title": "Keeping Parents Connected to Their Child’s Progress",
+    "description": "We believe parents play an important role in a student’s Quranic education. Teachers can provide regular updates about attendance, lessons, memorization, and Quranic progress so parents can stay informed about their child’s learning journey.",
+    "contact": "Contact Us →"
+  },
+  "cta": {
+    "label": "START LEARNING",
+    "title": "Begin Your Quranic Learning Journey",
+    "description": "Give your child the opportunity to learn, grow, and develop a lifelong connection with the Quran.",
+    "apply": "Apply Now →"
+  }
+}

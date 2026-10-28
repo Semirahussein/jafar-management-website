@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
-import  Navbar from "../app/components/navbar.js";
+import Navbar from "./components/navbar.js";
 
 
 const geistSans = Geist({
@@ -23,7 +24,9 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
       <body>
         
-        <Navbar />
+        <Suspense fallback={null}>
+          <Navbar />
+        </Suspense>
         {children}</body>
     </html>
   );

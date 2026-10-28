@@ -1,0 +1,245 @@
+.teacher-form-panel,
+.teacher-directory-panel {
+  margin-bottom: 18px;
+}
+
+.teacher-add-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.teacher-add-form label,
+.teacher-remove-confirm label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #59665d;
+  font-size: 0.64rem;
+  font-weight: 700;
+}
+
+.teacher-add-form input,
+.teacher-remove-confirm select {
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 10px 11px;
+  border: 1px solid #dfe6e0;
+  border-radius: 7px;
+  background: #fff;
+  color: #29362e;
+  font: inherit;
+  font-size: 0.7rem;
+}
+
+.teacher-add-form input:focus-visible,
+.teacher-remove-confirm select:focus-visible,
+.teacher-add-form button:focus-visible,
+.teacher-directory-card button:focus-visible {
+  outline: 2px solid #47815b;
+  outline-offset: 2px;
+}
+
+.teacher-primary-button,
+.teacher-confirm-remove,
+.teacher-cancel-remove,
+.teacher-remove-button {
+  padding: 9px 13px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font: inherit;
+  font-size: 0.64rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.teacher-primary-button {
+  min-height: 37px;
+  background: var(--admin-green);
+  color: #fff;
+}
+
+.teacher-primary-button:hover {
+  background: var(--admin-green-dark);
+}
+
+.teacher-form-error {
+  margin: 10px 0 0;
+  color: #b23f37;
+  font-size: 0.67rem;
+}
+
+.teacher-page-notice {
+  margin: 0 0 16px;
+  padding: 11px 14px;
+  border: 1px solid #cfe3d3;
+  border-radius: 8px;
+  background: #f0f7f1;
+  color: var(--admin-green);
+  font-size: 0.69rem;
+}
+
+.teacher-directory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.teacher-directory-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid #edf0ed;
+  border-radius: 9px;
+  background: #fcfdfc;
+}
+
+.teacher-directory-identity {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teacher-directory-copy {
+  min-width: 0;
+}
+
+.teacher-directory-copy strong,
+.teacher-directory-copy small {
+  display: block;
+}
+
+.teacher-directory-copy strong {
+  color: #29362e;
+  font-size: 0.7rem;
+}
+
+.teacher-directory-copy small {
+  margin-top: 4px;
+  color: #89948c;
+  font-size: 0.61rem;
+}
+
+.teacher-directory-students {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  color: #7f8982;
+  font-size: 0.62rem;
+}
+
+.teacher-directory-students strong {
+  color: var(--admin-green);
+  font-size: 0.83rem;
+}
+
+.teacher-remove-button {
+  border-color: #f0d8d5;
+  background: #fff7f6;
+  color: #ae4b43;
+}
+
+.teacher-remove-button:hover {
+  background: #ffedeb;
+}
+
+.teacher-remove-confirm {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #efdfbc;
+  border-radius: 8px;
+  background: #fffaf0;
+}
+
+.teacher-remove-confirm p {
+  flex-basis: 100%;
+  margin: 0;
+  color: #765a25;
+  font-size: 0.67rem;
+  line-height: 1.5;
+}
+
+.teacher-remove-confirm label {
+  flex: 1 1 200px;
+}
+
+.teacher-remove-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.teacher-confirm-remove {
+  background: #ae4b43;
+  color: #fff;
+}
+
+.teacher-confirm-remove:hover {
+  background: #963d36;
+}
+
+.teacher-confirm-remove:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.teacher-cancel-remove {
+  border-color: #e4e8e4;
+  background: #fff;
+  color: #657269;
+}
+
+.teacher-empty-state {
+  margin: 0;
+  padding: 20px 12px;
+  border: 1px dashed #dfe6e0;
+  border-radius: 8px;
+  color: #818d84;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+@media (max-width: 720px) {
+  .teacher-add-form {
+    grid-template-columns: 1fr;
+  }
+
+  .teacher-primary-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .teacher-directory-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  .teacher-directory-identity {
+    grid-column: 1 / -1;
+  }
+
+  .teacher-directory-students {
+    grid-column: 1;
+  }
+
+  .teacher-remove-button {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .teacher-remove-actions {
+    width: 100%;
+  }
+
+  .teacher-remove-actions button {
+    flex: 1;
+  }
+}
