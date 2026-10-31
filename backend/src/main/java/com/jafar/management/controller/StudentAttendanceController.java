@@ -57,7 +57,7 @@ public class StudentAttendanceController {
         if (user.getRole() == UserRole.ADMINISTRATOR) {
             return attendanceRepository.findAllByDateBetween(start, end);
         } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            return attendanceRepository.findAllByBranchIdAndDateBetween(user.getBranchId(), start, end);
+            return attendanceRepository.findAllByBranchIdInAndDateBetween(user.getBranchIds(), start, end);
         } else {
             return attendanceRepository.findAllByTeacherIdAndDateBetween(user.getId(), start, end);
         }
@@ -69,7 +69,7 @@ public class StudentAttendanceController {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student not in your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
@@ -85,7 +85,7 @@ public class StudentAttendanceController {
         StudentAttendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(attendance.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(attendance.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Attendance not in your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(attendance.getTeacherId())) {
@@ -101,7 +101,7 @@ public class StudentAttendanceController {
         Student student = studentRepository.findById(request.studentId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot record attendance for student outside your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
@@ -130,7 +130,7 @@ public class StudentAttendanceController {
         StudentAttendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(attendance.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(attendance.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot update attendance outside your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && (!user.getId().equals(attendance.getRecordedById()) && !user.getId().equals(attendance.getTeacherId()))) {
@@ -149,7 +149,7 @@ public class StudentAttendanceController {
         StudentAttendance attendance = attendanceRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Attendance not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(attendance.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(attendance.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete attendance outside your branch");
         }
 

@@ -11,6 +11,7 @@ public interface StudentAttendanceRepository extends JpaRepository<StudentAttend
     List<StudentAttendance> findAllByTeacherId(Long teacherId);
     List<StudentAttendance> findAllByStudentId(Long studentId);
     List<StudentAttendance> findAllByBranchIdAndDateBetween(Long branchId, LocalDate start, LocalDate end);
+    List<StudentAttendance> findAllByBranchIdInAndDateBetween(java.util.Collection<Long> branchIds, LocalDate start, LocalDate end);
     List<StudentAttendance> findAllByTeacherIdAndDateBetween(Long teacherId, LocalDate start, LocalDate end);
     List<StudentAttendance> findAllByDateBetween(LocalDate start, LocalDate end);
     boolean existsByStudentIdAndDate(Long studentId, LocalDate date);

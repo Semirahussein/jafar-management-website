@@ -9,6 +9,7 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     boolean existsByStudentNumber(String studentNumber);
     boolean existsByStudentNumberAndIdNot(String studentNumber, Long id);
     List<Student> findAllByBranchId(Long branchId);
+    List<Student> findAllByBranchIdIn(java.util.Collection<Long> branchIds);
     List<Student> findAllByTeacherId(Long teacherId);
     boolean existsByBranchId(Long branchId);
 }

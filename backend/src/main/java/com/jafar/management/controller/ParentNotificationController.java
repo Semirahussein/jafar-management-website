@@ -38,7 +38,7 @@ public class ParentNotificationController {
         if (user.getRole() == UserRole.ADMINISTRATOR) {
             return notificationRepository.findAll();
         } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            return notificationRepository.findAllByBranchId(user.getBranchId());
+            return notificationRepository.findAllByBranchIdIn(user.getBranchIds());
         } else {
             // Only notifications for students assigned to the teacher
             List<Student> students = studentRepository.findAllByTeacherId(user.getId());
@@ -57,7 +57,7 @@ public class ParentNotificationController {
         if (user.getRole() == UserRole.QURAN_TEACHER && !student.getTeacherId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !student.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         
@@ -70,8 +70,15 @@ public class ParentNotificationController {
         ParentNotification notif = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (user.getRole() != UserRole.ADMINISTRATOR && !notif.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(notif.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        if (user.getRole() == UserRole.QURAN_TEACHER) {
+            Student student = studentRepository.findById(notif.getStudentId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            if (!user.getId().equals(student.getTeacherId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
         }
         return notif;
     }
@@ -85,7 +92,7 @@ public class ParentNotificationController {
         if (user.getRole() == UserRole.QURAN_TEACHER && !student.getTeacherId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !student.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -108,7 +115,7 @@ public class ParentNotificationController {
         ParentNotification notif = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !notif.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(notif.getBranchId())) {
              throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
 
@@ -123,7 +130,7 @@ public class ParentNotificationController {
         ParentNotification notif = notificationRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !notif.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(notif.getBranchId())) {
              throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         if (notif.getDeliveryStatus() != DeliveryStatus.PENDING) {

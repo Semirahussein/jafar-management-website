@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useManagerData } from "../manager-data";
 
 export default function ManagerDashboardPage() {
-  const { branches, teachers, students } = useManagerData();
+  const { branches, teachers, students, error, isLoading } = useManagerData();
 
   return (
     <div className="manager-page">
@@ -14,26 +14,29 @@ export default function ManagerDashboardPage() {
         <p>A simple overview of your branches, teachers, and students.</p>
       </section>
 
+      {error && <p className="manager-empty" role="alert">{error}</p>}
+      {isLoading && <p role="status">Loading your branch data…</p>}
+
       <section className="manager-stat-grid" aria-label="Organization totals">
         <article className="manager-stat-card">
           <span>Branches</span>
-          <strong>{branches.length}</strong>
+          <strong>{isLoading ? "…" : branches.length}</strong>
           <small>Currently listed</small>
         </article>
         <article className="manager-stat-card">
           <span>Students</span>
-          <strong>{students.length}</strong>
+          <strong>{isLoading ? "…" : students.length}</strong>
           <small>Across all branches</small>
         </article>
         <article className="manager-stat-card">
           <span>Teachers</span>
-          <strong>{teachers.length}</strong>
+          <strong>{isLoading ? "…" : teachers.length}</strong>
           <small>Across all branches</small>
         </article>
         <article className="manager-stat-card">
           <span>Branch admins</span>
-          <strong>{branches.filter((branch) => branch.admin).length}</strong>
-          <small>Assigned to a branch</small>
+          <strong>{isLoading ? "…" : branches.length}</strong>
+          <small>Branches assigned to you</small>
         </article>
       </section>
 
@@ -48,7 +51,7 @@ export default function ManagerDashboardPage() {
           </Link>
         </div>
 
-        <div className="manager-table-wrap">
+        {isLoading || error ? null : <div className="manager-table-wrap">
           <table className="manager-table">
             <thead>
               <tr>
@@ -69,7 +72,7 @@ export default function ManagerDashboardPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div>}
       </section>
     </div>
   );

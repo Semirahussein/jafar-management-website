@@ -12,11 +12,15 @@ import java.util.List;
 public interface ReportRepository extends JpaRepository<Report, Long> {
     List<Report> findAllByAuthorId(Long authorId);
     List<Report> findAllByBranchId(Long branchId);
+    List<Report> findAllByBranchIdIn(java.util.Collection<Long> branchIds);
     List<Report> findAllByBranchIdAndReportType(Long branchId, ReportType type);
+    List<Report> findAllByBranchIdInAndReportType(java.util.Collection<Long> branchIds, ReportType type);
     List<Report> findAllByReportType(ReportType type);
     List<Report> findAllByAuthorIdAndStatus(Long authorId, ReportStatus status);
     List<Report> findAllByBranchIdAndStatus(Long branchId, ReportStatus status);
+    List<Report> findAllByBranchIdInAndStatus(java.util.Collection<Long> branchIds, ReportStatus status);
     List<Report> findAllByStatus(ReportStatus status);
     long countByBranchIdAndStatus(Long branchId, ReportStatus status);
+    long countByBranchIdInAndStatus(java.util.Collection<Long> branchIds, ReportStatus status);
     long countByStatus(ReportStatus status);
 }

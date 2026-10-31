@@ -1,0 +1,6 @@
+* [33m2afca72[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m built the parent side of the system.
+*   [33m92733bc[m Merge pull request #3 from Semirahussein/dev
+[32m|[m[33m\[m  
+[32m|[m * [33m469887f[m[33m ([m[1;31morigin/dev[m[33m)[m initial backend implementation
+[32m|[m * [33m1632198[m added readme file
+* [33m|[m [33m9e3748e[m added the manager side and finished the teacher and admin logout functionality.

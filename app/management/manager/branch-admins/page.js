@@ -3,7 +3,7 @@
 import { useManagerData } from "../manager-data";
 
 export default function ManagerBranchAdminsPage() {
-  const { branches } = useManagerData();
+  const { branches, error, isLoading } = useManagerData();
   const assignedBranches = branches.filter((branch) => branch.admin);
 
   return (
@@ -21,7 +21,11 @@ export default function ManagerBranchAdminsPage() {
             <p>{assignedBranches.length} admin assignment{assignedBranches.length === 1 ? "" : "s"}</p>
           </div>
         </div>
-        <div className="manager-table-wrap">
+        {error ? (
+          <p className="manager-empty" role="alert">{error}</p>
+        ) : isLoading ? (
+          <p role="status">Loading branch assignments…</p>
+        ) : <div className="manager-table-wrap">
           <table className="manager-table">
             <thead>
               <tr>
@@ -47,11 +51,11 @@ export default function ManagerBranchAdminsPage() {
               )}
             </tbody>
           </table>
-        </div>
+        </div>}
       </section>
 
       <p className="manager-note">
-        Admin assignment can be managed when branch admin accounts are available in the system.
+        Ask an administrator to update branch-manager access if a branch is missing.
       </p>
     </div>
   );

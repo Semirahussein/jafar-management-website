@@ -61,7 +61,7 @@ public class QuranProgressController {
         if (user.getRole() == UserRole.ADMINISTRATOR) {
             records = quranProgressRepository.findAll();
         } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            records = quranProgressRepository.findAllByBranchId(user.getBranchId());
+            records = quranProgressRepository.findAllByBranchIdIn(user.getBranchIds());
         } else {
             records = quranProgressRepository.findAllByTeacherId(user.getId());
         }
@@ -81,7 +81,7 @@ public class QuranProgressController {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !student.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student does not belong to your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
@@ -97,7 +97,7 @@ public class QuranProgressController {
         QuranProgress record = quranProgressRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !record.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(record.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Record does not belong to your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !record.getTeacherId().equals(user.getId())) {
@@ -117,7 +117,7 @@ public class QuranProgressController {
         Student student = studentRepository.findById(request.studentId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !student.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Student does not belong to your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId())) {
@@ -145,7 +145,7 @@ public class QuranProgressController {
         QuranProgress progress = quranProgressRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !progress.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(progress.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Record does not belong to your branch");
         }
         if (user.getRole() == UserRole.QURAN_TEACHER && !progress.getTeacherId().equals(user.getId())) {
@@ -174,7 +174,7 @@ public class QuranProgressController {
         QuranProgress progress = quranProgressRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Record not found"));
 
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !progress.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(progress.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Record does not belong to your branch");
         }
 

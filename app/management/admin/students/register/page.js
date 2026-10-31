@@ -1,86 +1,145 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ApiError, apiRequest } from "@/app/lib/api";
+import { useAuth } from "../../../auth-provider";
 import "../../dashboard/dashboard.css";
 import "../students.css";
 import "./register.css";
-import {
-  getServerStudentRosterSnapshot,
-  getStudentProfiles,
-  getStudentRoster,
-  getStudentRosterSnapshot,
-  saveStudentRoster,
-  subscribeToStudentRoster,
-} from "../studentRoster";
 
-const branch = "Jafar Madrasa - Main Branch";
-const levels = ["Hifz", "Al Qaeda", "Tilawa"];
+function getToday() {
+  const date = new Date();
+  const offset = date.getTimezoneOffset();
+  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 10);
+}
 
 export default function RegisterStudentPage() {
   const router = useRouter();
-  const rosterSnapshot = useSyncExternalStore(
-    subscribeToStudentRoster,
-    getStudentRosterSnapshot,
-    getServerStudentRosterSnapshot
-  );
-  const teachers = getStudentRoster(rosterSnapshot);
-  const [name, setName] = useState("");
-  const [age, setAge] = useState("");
-  const [level, setLevel] = useState("");
-  const [teacherId, setTeacherId] = useState("");
+  const { credentials, signOut, user } = useAuth();
+  const [branches, setBranches] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadError, setLoadError] = useState("");
   const [formError, setFormError] = useState("");
+  const [name, setName] = useState("");
+  const [studentNumber, setStudentNumber] = useState("");
+  const [gender, setGender] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [guardianName, setGuardianName] = useState("");
+  const [guardianPhone, setGuardianPhone] = useState("");
+  const [branchId, setBranchId] = useState("");
+  const [teacherId, setTeacherId] = useState("");
+  const [enrollmentDate, setEnrollmentDate] = useState(getToday);
+  const [currentLevel, setCurrentLevel] = useState("");
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    const trimmedName = name.trim();
-    const parsedAge = Number(age);
-    const selectedTeacher = teachers.find(
-      (teacher) => teacher.id === Number(teacherId)
-    );
-
-    if (!trimmedName || !Number.isInteger(parsedAge) || parsedAge < 1 || parsedAge > 100) {
-      setFormError("Enter the student’s name and a valid age from 1 to 100.");
+  useEffect(() => {
+    if (!credentials || !user) {
+      router.replace("/management/login");
       return;
     }
 
-    if (!levels.includes(level)) {
-      setFormError("Choose a student level.");
-      return;
-    }
+    if (user.role !== "ADMINISTRATOR") return;
 
-    if (!selectedTeacher) {
-      setFormError("Choose a teacher for this student.");
-      return;
-    }
+    let active = true;
+    Promise.all([
+      apiRequest("/api/branches", { auth: credentials }),
+      apiRequest("/api/users", { auth: credentials }),
+    ])
+      .then(([branchList, userList]) => {
+        if (!Array.isArray(branchList) || !Array.isArray(userList)) {
+          throw new Error("The backend returned an unexpected branches or users response.");
+        }
+        if (!active) return;
 
-    const highestStudentNumber = teachers
-      .flatMap(getStudentProfiles)
-      .reduce((highest, profile) => {
-        const match = profile?.id.match(/^registered-student-(\d+)$/);
-        return match ? Math.max(highest, Number(match[1])) : highest;
-      }, 0);
-    const profile = {
-      id: `registered-student-${highestStudentNumber + 1}`,
-      age: parsedAge,
-      level,
+        setBranches(branchList.filter((branch) => branch.active));
+        setTeachers(
+          userList.filter(
+            (candidate) =>
+              candidate.active &&
+              candidate.role === "QURAN_TEACHER" &&
+              candidate.branchId !== null
+          )
+        );
+      })
+      .catch((error) => {
+        if (active) {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : "Unable to load branches and teachers."
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
     };
-    const updatedRoster = teachers.map((teacher) => {
-      if (teacher.id !== selectedTeacher.id) {
-        return teacher;
+  }, [credentials, router, user]);
+
+  const selectedBranchId = branchId ? Number(branchId) : null;
+  const branchTeachers = useMemo(
+    () => teachers.filter((teacher) => teacher.branchId === selectedBranchId),
+    [selectedBranchId, teachers]
+  );
+  const selectedBranch = branches.find((branch) => branch.id === selectedBranchId);
+  const accessError =
+    user && user.role !== "ADMINISTRATOR"
+      ? "Only administrators can register students from this page."
+      : "";
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setFormError("");
+
+    if (!credentials || user?.role !== "ADMINISTRATOR") {
+      setFormError("Sign in as an administrator before registering a student.");
+      return;
+    }
+    if (!selectedBranchId) {
+      setFormError("Choose a branch.");
+      return;
+    }
+    if (teacherId && !branchTeachers.some((teacher) => teacher.id === Number(teacherId))) {
+      setFormError("Choose a teacher assigned to the selected branch.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await apiRequest("/api/students", {
+        method: "POST",
+        auth: credentials,
+        body: {
+          fullName: name.trim(),
+          studentNumber: studentNumber.trim(),
+          gender: gender || null,
+          dateOfBirth: dateOfBirth || null,
+          guardianName: guardianName.trim() || null,
+          guardianPhone: guardianPhone.trim() || null,
+          branchId: selectedBranchId,
+          teacherId: teacherId ? Number(teacherId) : null,
+          enrollmentDate,
+          currentLevel: currentLevel.trim() || null,
+        },
+      });
+      router.push("/management/admin/students");
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        setFormError("Your sign-in is no longer valid. Sign in again and retry.");
+      } else {
+        setFormError(
+          error instanceof Error ? error.message : "Unable to register this student."
+        );
       }
-
-      return {
-        ...teacher,
-        assignedStudents: [...teacher.assignedStudents, trimmedName],
-        studentProfiles: [...getStudentProfiles(teacher), profile],
-      };
-    });
-
-    saveStudentRoster(updatedRoster);
-    router.push("/management/admin/students");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -93,20 +152,19 @@ export default function RegisterStudentPage() {
             <small>Branch management</small>
           </span>
         </Link>
-
         <div className="admin-sidebar-label">WORKSPACE</div>
         <nav className="admin-navigation" aria-label="Admin navigation">
           <Link href="/management/admin/dashboard" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">⌂</span>
             Dashboard
           </Link>
-          <Link
-            href="/management/admin/students"
-            className="admin-nav-link active"
-            aria-current="page"
-          >
+          <Link href="/management/admin/students" className="admin-nav-link active">
             <span className="admin-nav-icon" aria-hidden="true">♙</span>
             Students
+          </Link>
+          <Link href="/management/admin/branches" className="admin-nav-link">
+            <span className="admin-nav-icon" aria-hidden="true">▦</span>
+            Branches
           </Link>
           <Link href="/management/admin/teachers" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">♧</span>
@@ -121,15 +179,18 @@ export default function RegisterStudentPage() {
             Teacher Attendance
           </Link>
         </nav>
-
         <div className="admin-sidebar-footer">
-          <div className="admin-branch-avatar" aria-hidden="true">MB</div>
+          <div className="admin-branch-avatar" aria-hidden="true">AD</div>
           <div>
-            <strong>Main Branch</strong>
-            <span>Branch administrator</span>
+            <strong>{user?.username || "Administrator"}</strong>
+            <span>Administrator</span>
           </div>
         </div>
-        <Link className="admin-logout-link" href="/management/login">
+        <Link
+          className="admin-logout-link"
+          href="/management/login"
+          onClick={signOut}
+        >
           <span className="admin-nav-icon" aria-hidden="true">↪</span>
           Logout
         </Link>
@@ -145,10 +206,10 @@ export default function RegisterStudentPage() {
             Back to students
           </Link>
           <div className="admin-user">
-            <div className="admin-user-avatar">BA</div>
+            <div className="admin-user-avatar">AD</div>
             <div className="admin-user-details">
-              <strong>Branch Admin</strong>
-              <span>Main Branch</span>
+              <strong>{user?.username || "Administrator"}</strong>
+              <span>Administrator</span>
             </div>
           </div>
         </header>
@@ -158,88 +219,173 @@ export default function RegisterStudentPage() {
             <div>
               <p className="admin-eyebrow">STUDENT REGISTRATION</p>
               <h1>Register a student</h1>
-              <p>Enter the student’s details and assign them to a teacher.</p>
+              <p>Enter the student’s details and assign them to a branch and teacher.</p>
             </div>
-            <div className="admin-branch-badge">
-              <span aria-hidden="true">⌖</span>
-              {branch}
-            </div>
+            {selectedBranch && (
+              <div className="admin-branch-badge">
+                <span aria-hidden="true">⌖</span>
+                {selectedBranch.name}
+              </div>
+            )}
           </section>
 
           <section className="register-student-panel">
-            <form className="register-student-form" onSubmit={handleSubmit}>
-              <label>
-                Student name
-                <input
-                  type="text"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder="Enter the student’s full name"
-                  required
-                />
-              </label>
+            {accessError ? (
+              <p className="register-student-error" role="alert">{accessError}</p>
+            ) : isLoading ? (
+              <p role="status">Loading branches and teachers from the backend…</p>
+            ) : loadError ? (
+              <p className="register-student-error" role="alert">{loadError}</p>
+            ) : branches.length === 0 ? (
+              <p role="status">
+                No active branches were found. Create a branch before registering students.
+              </p>
+            ) : (
+              <form className="register-student-form" onSubmit={handleSubmit}>
+                <label>
+                  Student full name
+                  <input
+                    type="text"
+                    autoComplete="name"
+                    maxLength={150}
+                    value={name}
+                    onChange={(event) => setName(event.target.value)}
+                    required
+                  />
+                </label>
 
-              <label>
-                Age
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  step="1"
-                  value={age}
-                  onChange={(event) => setAge(event.target.value)}
-                  placeholder="Enter age"
-                  required
-                />
-              </label>
+                <label>
+                  Student number
+                  <input
+                    type="text"
+                    maxLength={50}
+                    value={studentNumber}
+                    onChange={(event) => setStudentNumber(event.target.value)}
+                    placeholder="For example, STU-001"
+                    required
+                  />
+                </label>
 
-              <label>
-                Level
-                <select
-                  value={level}
-                  onChange={(event) => setLevel(event.target.value)}
-                  required
-                >
-                  <option value="" disabled>Select a level</option>
-                  {levels.map((studentLevel) => (
-                    <option key={studentLevel} value={studentLevel}>
-                      {studentLevel}
+                <label>
+                  Branch
+                  <select
+                    value={branchId}
+                    onChange={(event) => {
+                      setBranchId(event.target.value);
+                      setTeacherId("");
+                    }}
+                    required
+                  >
+                    <option value="" disabled>Select a branch</option>
+                    {branches.map((branch) => (
+                      <option key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Quran teacher (optional)
+                  <select
+                    value={teacherId}
+                    onChange={(event) => setTeacherId(event.target.value)}
+                    disabled={!selectedBranchId || branchTeachers.length === 0}
+                  >
+                    <option value="">
+                      {selectedBranchId
+                        ? "No teacher assigned"
+                        : "Choose a branch first"}
                     </option>
-                  ))}
-                </select>
-              </label>
+                    {branchTeachers.map((teacher) => (
+                      <option key={teacher.id} value={teacher.id}>
+                        {teacher.username}
+                      </option>
+                    ))}
+                  </select>
+                  {selectedBranchId && branchTeachers.length === 0 && (
+                    <small>No active Quran teachers are registered for this branch.</small>
+                  )}
+                </label>
 
-              <label>
-                Assign to teacher
-                <select
-                  value={teacherId}
-                  onChange={(event) => setTeacherId(event.target.value)}
-                  required
-                  disabled={teachers.length === 0}
-                >
-                  <option value="" disabled>Select a teacher</option>
-                  {teachers.map((teacher) => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                <label>
+                  Enrollment date
+                  <input
+                    type="date"
+                    value={enrollmentDate}
+                    max={getToday()}
+                    onChange={(event) => setEnrollmentDate(event.target.value)}
+                    required
+                  />
+                </label>
 
-              {formError && (
-                <p className="register-student-error" role="alert">
-                  {formError}
-                </p>
-              )}
+                <label>
+                  Date of birth (optional)
+                  <input
+                    type="date"
+                    value={dateOfBirth}
+                    max={getToday()}
+                    onChange={(event) => setDateOfBirth(event.target.value)}
+                  />
+                </label>
 
-              <div className="register-student-actions">
-                <Link href="/management/admin/students">Cancel</Link>
-                <button type="submit" disabled={teachers.length === 0}>
-                  Register student
-                </button>
-              </div>
-            </form>
+                <label>
+                  Gender (optional)
+                  <select value={gender} onChange={(event) => setGender(event.target.value)}>
+                    <option value="">Not specified</option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                  </select>
+                </label>
+
+                <label>
+                  Quran learning level (optional)
+                  <input
+                    type="text"
+                    maxLength={80}
+                    value={currentLevel}
+                    onChange={(event) => setCurrentLevel(event.target.value)}
+                    placeholder="For example, Hifz"
+                  />
+                </label>
+
+                <label>
+                  Guardian name (optional)
+                  <input
+                    type="text"
+                    maxLength={150}
+                    value={guardianName}
+                    onChange={(event) => setGuardianName(event.target.value)}
+                  />
+                </label>
+
+                <label>
+                  Guardian phone (optional)
+                  <input
+                    type="tel"
+                    maxLength={30}
+                    value={guardianPhone}
+                    onChange={(event) => setGuardianPhone(event.target.value)}
+                  />
+                </label>
+
+                {formError && (
+                  <p className="register-student-error" role="alert">
+                    {formError}
+                  </p>
+                )}
+
+                <div className="register-student-actions">
+                  <Link href="/management/admin/students">Cancel</Link>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || branches.length === 0}
+                  >
+                    {isSubmitting ? "Registering…" : "Register student"}
+                  </button>
+                </div>
+              </form>
+            )}
           </section>
         </div>
       </main>

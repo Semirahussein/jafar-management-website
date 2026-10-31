@@ -1,6 +1,7 @@
 package com.jafar.management.controller;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import com.jafar.management.dto.enums.UserRole;
 import com.jafar.management.model.AppUser;
@@ -51,9 +52,12 @@ public class UserController {
         if (users.existsByUsername(request.username())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already in use");
         }
-        validateRoleAndBranch(request.role(), request.branchId());
-        AppUser saved = users.save(new AppUser(request.username(), passwordEncoder.encode(request.password()),
-                request.role(), request.branchId()));
+        List<Long> branchIds = resolveBranchIds(request.role(), request.branchIds(), request.branchId());
+        validateRoleAndBranches(request.role(), branchIds);
+        AppUser user = new AppUser(request.username(), passwordEncoder.encode(request.password()),
+                request.role(), branchIds.stream().findFirst().orElse(null));
+        user.setBranchIds(branchIds);
+        AppUser saved = users.save(user);
         return UserView.from(saved);
     }
 
@@ -73,10 +77,11 @@ public class UserController {
         if (users.existsByUsernameAndIdNot(request.username(), id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Username is already in use");
         }
-        validateRoleAndBranch(request.role(), request.branchId());
+        List<Long> branchIds = resolveBranchIds(request.role(), request.branchIds(), request.branchId());
+        validateRoleAndBranches(request.role(), branchIds);
         user.setUsername(request.username());
         user.setRole(request.role());
-        user.setBranchId(request.branchId());
+        user.setBranchIds(branchIds);
         user.setActive(request.active());
         if (request.password() != null) user.setPasswordHash(passwordEncoder.encode(request.password()));
         return UserView.from(users.save(user));
@@ -97,12 +102,31 @@ public class UserController {
         users.save(user);
     }
 
-    private void validateRoleAndBranch(UserRole role, Long branchId) {
-        if (role == UserRole.ADMINISTRATOR && branchId != null) {
+    private List<Long> resolveBranchIds(UserRole role, List<Long> branchIds, Long branchId) {
+        if (branchIds != null) {
+            return branchIds.stream().distinct().toList();
+        }
+        if (branchId != null) {
+            return List.of(branchId);
+        }
+        return List.of();
+    }
+
+    private void validateRoleAndBranches(UserRole role, List<Long> branchIds) {
+        if (role == UserRole.ADMINISTRATOR && !branchIds.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Administrators are not assigned to a branch");
         }
-        if (role != UserRole.ADMINISTRATOR && (branchId == null || !branches.existsById(branchId))) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "A valid branch is required for this role");
+        if (role == UserRole.QURAN_TEACHER && branchIds.size() != 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "A Quran teacher must be assigned to exactly one branch");
+        }
+        if (role == UserRole.BRANCH_MANAGER && branchIds.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "A branch manager must be assigned to at least one branch");
+        }
+        if (branchIds.stream().anyMatch(branchId -> !branches.existsById(branchId))) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Every assigned branch must exist");
         }
     }
 
@@ -112,15 +136,18 @@ public class UserController {
 
     public record CreateUserRequest(@NotBlank @Size(max = 80) String username,
                                     @NotBlank @Size(min = 12, max = 100) String password,
-                                    @NotNull UserRole role, Long branchId) {}
+                                    @NotNull UserRole role, Long branchId, List<Long> branchIds) {}
 
     public record UpdateUserRequest(@NotBlank @Size(max = 80) String username,
                                     @Size(min = 12, max = 100) String password,
-                                    @NotNull UserRole role, Long branchId, @NotNull Boolean active) {}
+                                    @NotNull UserRole role, Long branchId, List<Long> branchIds,
+                                    @NotNull Boolean active) {}
 
-    public record UserView(Long id, String username, UserRole role, Long branchId, boolean active) {
+    public record UserView(Long id, String username, UserRole role, Long branchId,
+                           List<Long> branchIds, boolean active) {
         static UserView from(AppUser user) {
-            return new UserView(user.getId(), user.getUsername(), user.getRole(), user.getBranchId(), user.isActive());
+            return new UserView(user.getId(), user.getUsername(), user.getRole(),
+                    user.getBranchId(), new ArrayList<>(user.getBranchIds()), user.isActive());
         }
     }
 }

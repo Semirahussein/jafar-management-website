@@ -40,14 +40,24 @@ public class BranchController {
     @GetMapping
     public List<Branch> list(@AuthenticationPrincipal AppUser user) {
         if (user.getRole() == UserRole.ADMINISTRATOR) return branches.findAll();
-        if (user.getBranchId() == null) return List.of();
-        return branches.findById(user.getBranchId()).map(List::of).orElseGet(List::of);
+        if (user.getBranchIds().isEmpty()) return List.of();
+        return branches.findAllById(user.getBranchIds());
     }
 
     @GetMapping("/{id}")
     public Branch get(@PathVariable Long id, @AuthenticationPrincipal AppUser user) {
         ensureBranchAccess(id, user);
         return findBranch(id);
+    }
+
+    @GetMapping("/{id}/teachers")
+    public List<BranchTeacherView> listTeachers(@PathVariable Long id,
+            @AuthenticationPrincipal AppUser user) {
+        ensureBranchAccess(id, user);
+        findBranch(id);
+        return users.findAllByBranchIdAndRoleAndActiveTrue(id, UserRole.QURAN_TEACHER).stream()
+                .map(teacher -> new BranchTeacherView(teacher.getId(), teacher.getUsername(), id))
+                .toList();
     }
 
     @PostMapping
@@ -81,7 +91,8 @@ public class BranchController {
     @PreAuthorize("hasRole('ADMINISTRATOR')")
     public void delete(@PathVariable Long id) {
         Branch branch = findBranch(id);
-        if (users.existsByBranchId(id) || students.existsByBranchId(id)) {
+        if (users.existsByAdditionalBranchIdsContains(id)
+                || students.existsByBranchId(id)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
                     "Branch is still assigned to users or students and cannot be deleted");
         }
@@ -89,10 +100,10 @@ public class BranchController {
     }
 
     private void ensureBranchAccess(Long branchId, AppUser user) {
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !branchId.equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(branchId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot access this branch");
         }
-        if (user.getRole() == UserRole.QURAN_TEACHER && !branchId.equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.QURAN_TEACHER && !user.canAccessBranch(branchId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot access this branch");
         }
     }
@@ -102,4 +113,5 @@ public class BranchController {
     }
 
     public record BranchRequest(@NotBlank @Size(max = 120) String name, @Size(max = 255) String address) {}
+    public record BranchTeacherView(Long id, String username, Long branchId) {}
 }

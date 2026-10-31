@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useManagerData } from "../manager-data";
 
 export default function ManagerTeachersPage() {
-  const { teachers } = useManagerData();
+  const { teachers, error, isLoading } = useManagerData();
   const [search, setSearch] = useState("");
   const filteredTeachers = teachers.filter((teacher) =>
     `${teacher.name} ${teacher.subject}`.toLowerCase().includes(search.trim().toLowerCase())
@@ -34,7 +34,11 @@ export default function ManagerTeachersPage() {
             />
           </label>
         </div>
-        <div className="manager-table-wrap">
+        {error ? (
+          <p className="manager-empty" role="alert">{error}</p>
+        ) : isLoading ? (
+          <p role="status">Loading teachers…</p>
+        ) : <div className="manager-table-wrap">
           <table className="manager-table">
             <thead>
               <tr>
@@ -48,7 +52,7 @@ export default function ManagerTeachersPage() {
               {filteredTeachers.map((teacher) => (
                 <tr key={teacher.id}>
                   <th scope="row">{teacher.name}</th>
-                  <td>Main Branch</td>
+                  <td>{teacher.branch}</td>
                   <td>{teacher.subject}</td>
                   <td>{teacher.assignedStudents.length}</td>
                 </tr>
@@ -62,7 +66,7 @@ export default function ManagerTeachersPage() {
               )}
             </tbody>
           </table>
-        </div>
+        </div>}
       </section>
     </div>
   );

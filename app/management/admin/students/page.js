@@ -1,32 +1,17 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ApiError, apiRequest } from "@/app/lib/api";
+import { useAuth } from "../../auth-provider";
 import "../dashboard/dashboard.css";
 import "./students.css";
-import {
-  getStudentProfile,
-  getStudentProfiles,
-  getServerStudentRosterSnapshot,
-  getStudentRoster,
-  getStudentRosterSnapshot,
-  saveStudentRoster,
-  subscribeToStudentRoster,
-} from "./studentRoster";
-
-const branch = "Jafar Madrasa - Main Branch";
 
 function getGreeting() {
   const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-
-  if (hour < 18) {
-    return "Good afternoon";
-  }
-
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
   return "Good evening";
 }
 
@@ -40,70 +25,135 @@ function getFormattedDate() {
 }
 
 export default function AdminStudentsPage() {
-  const rosterSnapshot = useSyncExternalStore(
-    subscribeToStudentRoster,
-    getStudentRosterSnapshot,
-    getServerStudentRosterSnapshot
-  );
-  const teachers = getStudentRoster(rosterSnapshot);
-  const [editingStudent, setEditingStudent] = useState(null);
+  const router = useRouter();
+  const { credentials, signOut, user } = useAuth();
+  const [students, setStudents] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [editingStudentId, setEditingStudentId] = useState(null);
   const [targetTeacherId, setTargetTeacherId] = useState("");
-  const totalStudents = teachers.reduce(
-    (count, teacher) => count + teacher.assignedStudents.length,
-    0
+  const [editError, setEditError] = useState("");
+  const [isSavingAssignment, setIsSavingAssignment] = useState(false);
+
+  useEffect(() => {
+    if (!credentials || !user) {
+      router.replace("/management/login");
+      return;
+    }
+
+    if (user.role !== "ADMINISTRATOR") return;
+
+    let active = true;
+    Promise.all([
+      apiRequest("/api/students", { auth: credentials }),
+      apiRequest("/api/branches", { auth: credentials }),
+      apiRequest("/api/users", { auth: credentials }),
+    ])
+      .then(([studentList, branchList, userList]) => {
+        if (
+          !Array.isArray(studentList) ||
+          !Array.isArray(branchList) ||
+          !Array.isArray(userList)
+        ) {
+          throw new Error("The backend returned an unexpected student directory response.");
+        }
+        if (!active) return;
+        setStudents(studentList);
+        setBranches(branchList);
+        setTeachers(
+          userList.filter(
+            (candidate) =>
+              candidate.role === "QURAN_TEACHER" && candidate.active
+          )
+        );
+      })
+      .catch((error) => {
+        if (!active) return;
+        setLoadError(
+          error instanceof ApiError && error.status === 401
+            ? "Your sign-in is no longer valid. Sign in again."
+            : error instanceof Error
+              ? error.message
+              : "Unable to load students from the backend."
+        );
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [credentials, router, user]);
+
+  const branchById = useMemo(
+    () => new Map(branches.map((branch) => [branch.id, branch.name])),
+    [branches]
   );
+  const teacherById = useMemo(
+    () => new Map(teachers.map((teacher) => [teacher.id, teacher.username])),
+    [teachers]
+  );
+  const assignedStudents = students.filter((student) => student.teacherId).length;
+  const accessError =
+    user && user.role !== "ADMINISTRATOR"
+      ? "Only administrators can view this student directory."
+      : "";
 
-  const saveStudentMove = (event) => {
+  const saveTeacherAssignment = async (event, student) => {
     event.preventDefault();
-    if (!editingStudent || !targetTeacherId) {
+    setEditError("");
+
+    if (!credentials || !targetTeacherId) {
+      setEditError("Choose a teacher before saving.");
       return;
     }
 
-    const destinationId = Number(targetTeacherId);
-    if (destinationId === editingStudent.teacherId) {
-      setEditingStudent(null);
+    const newTeacherId = Number(targetTeacherId);
+    if (
+      !teachers.some(
+        (teacher) =>
+          teacher.id === newTeacherId && teacher.branchId === student.branchId
+      )
+    ) {
+      setEditError("The teacher must belong to this student's branch.");
       return;
     }
 
-    const updatedTeachers = teachers.map((teacher) => {
-      if (teacher.id === editingStudent.teacherId) {
-        return {
-          ...teacher,
-          assignedStudents: teacher.assignedStudents.filter(
-            (_, index) => index !== editingStudent.studentIndex
-          ),
-          studentProfiles: getStudentProfiles(teacher).filter(
-            (_, index) => index !== editingStudent.studentIndex
-          ),
-        };
-      }
-
-      if (teacher.id === destinationId) {
-        return {
-          ...teacher,
-          assignedStudents: [...teacher.assignedStudents, editingStudent.name],
-          studentProfiles: [
-            ...getStudentProfiles(teacher),
-            editingStudent.profile,
-          ],
-        };
-      }
-
-      return teacher;
-    });
-
-    saveStudentRoster(updatedTeachers);
-    setEditingStudent(null);
-  };
-
-  const openStudentEditor = (teacher, studentIndex, name) => {
-    setEditingStudent({
-      teacherId: teacher.id,
-      studentIndex,
-      name,
-      profile: getStudentProfile(teacher, studentIndex),
-    });
-    setTargetTeacherId("");
+    setIsSavingAssignment(true);
+    try {
+      const updatedStudent = await apiRequest(`/api/students/${student.id}`, {
+        method: "PUT",
+        auth: credentials,
+        body: {
+          fullName: student.fullName,
+          studentNumber: student.studentNumber,
+          gender: student.gender,
+          dateOfBirth: student.dateOfBirth,
+          guardianName: student.guardianName,
+          guardianPhone: student.guardianPhone,
+          branchId: student.branchId,
+          teacherId: newTeacherId,
+          enrollmentDate: student.enrollmentDate,
+          currentLevel: student.currentLevel,
+        },
+      });
+      setStudents((currentStudents) =>
+        currentStudents.map((current) =>
+          current.id === updatedStudent.id ? updatedStudent : current
+        )
+      );
+      setEditingStudentId(null);
+      setTargetTeacherId("");
+    } catch (error) {
+      setEditError(
+        error instanceof Error ? error.message : "Unable to update the teacher assignment."
+      );
+    } finally {
+      setIsSavingAssignment(false);
+    }
   };
 
   return (
@@ -116,17 +166,12 @@ export default function AdminStudentsPage() {
             <small>Branch management</small>
           </span>
         </Link>
-
         <div className="admin-sidebar-label">WORKSPACE</div>
         <nav className="admin-navigation" aria-label="Admin navigation">
-          <Link
-            href="/management/admin/dashboard"
-            className="admin-nav-link"
-          >
+          <Link href="/management/admin/dashboard" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">⌂</span>
             Dashboard
           </Link>
-
           <Link
             href="/management/admin/students"
             className="admin-nav-link active"
@@ -135,39 +180,38 @@ export default function AdminStudentsPage() {
             <span className="admin-nav-icon" aria-hidden="true">♙</span>
             Students
           </Link>
-
-          <Link
-            href="/management/admin/teachers"
-            className="admin-nav-link"
-          >
+          <Link href="/management/admin/branches" className="admin-nav-link">
+            <span className="admin-nav-icon" aria-hidden="true">▦</span>
+            Branches
+          </Link>
+          <Link href="/management/admin/teachers" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">♧</span>
             Teachers
           </Link>
-
           <Link href="/management/admin/assignments" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">⇄</span>
             Assignments
           </Link>
-
           <Link href="/management/admin/attendance" className="admin-nav-link">
             <span className="admin-nav-icon" aria-hidden="true">✓</span>
             Teacher Attendance
           </Link>
-
-          <span className="admin-nav-link disabled" aria-disabled="true" title="Coming soon">
-            <span className="admin-nav-icon" aria-hidden="true">▤</span>
-            Reports
-            <span className="nav-coming-soon">Soon</span>
-          </span>
         </nav>
-
         <div className="admin-sidebar-footer">
-          <div className="admin-branch-avatar" aria-hidden="true">MB</div>
+          <div className="admin-branch-avatar" aria-hidden="true">AD</div>
           <div>
-            <strong>Main Branch</strong>
-            <span>Branch administrator</span>
+            <strong>{user?.username || "Administrator"}</strong>
+            <span>Administrator</span>
           </div>
         </div>
+        <Link
+          className="admin-logout-link"
+          href="/management/login"
+          onClick={signOut}
+        >
+          <span className="admin-nav-icon" aria-hidden="true">↪</span>
+          Logout
+        </Link>
       </aside>
 
       <main className="admin-main">
@@ -178,10 +222,10 @@ export default function AdminStudentsPage() {
           </div>
           <div className="admin-topbar-date">{getFormattedDate()}</div>
           <div className="admin-user">
-            <div className="admin-user-avatar">BA</div>
+            <div className="admin-user-avatar">AD</div>
             <div className="admin-user-details">
-              <strong>Branch Admin</strong>
-              <span>Main Branch</span>
+              <strong>{user?.username || "Administrator"}</strong>
+              <span>Administrator</span>
             </div>
           </div>
         </header>
@@ -190,13 +234,15 @@ export default function AdminStudentsPage() {
           <section className="admin-welcome">
             <div>
               <p className="admin-eyebrow">STUDENT OVERVIEW</p>
-              <h1>{getGreeting()}, Admin</h1>
-              <p>Review all students grouped by their assigned teacher.</p>
+              <h1>{getGreeting()}, {user?.username || "Admin"}</h1>
+              <p>Students below are loaded from the management database.</p>
             </div>
-            <div className="admin-branch-badge">
-              <span aria-hidden="true">⌖</span>
-              {branch}
-            </div>
+            <Link
+              className="admin-register-student-button"
+              href="/management/admin/students/register"
+            >
+              + Register student
+            </Link>
           </section>
 
           <section className="admin-student-summary" aria-label="Student totals">
@@ -205,154 +251,136 @@ export default function AdminStudentsPage() {
                 <span>Total students</span>
                 <span className="admin-stat-icon students">♙</span>
               </div>
-              <strong>{totalStudents}</strong>
-              <p>Across {teachers.length} teacher groups</p>
+              <strong>{isLoading ? "…" : students.length}</strong>
+              <p>Loaded from the backend</p>
             </article>
-
             <article className="admin-stat-card">
               <div className="admin-stat-heading">
-                <span>Teacher groups</span>
+                <span>Assigned to a teacher</span>
                 <span className="admin-stat-icon teachers">♧</span>
               </div>
-              <strong>{teachers.length}</strong>
-              <p>Active class groups</p>
+              <strong>{isLoading ? "…" : assignedStudents}</strong>
+              <p>Students with a Quran teacher</p>
             </article>
           </section>
 
           <section className="admin-panel teacher-students-panel">
             <div className="admin-panel-heading">
               <div>
-                <h2>Students by teacher</h2>
-                <p>All assigned learners under each class group.</p>
+                <h2>Student directory</h2>
+                <p>Official student records from the backend.</p>
               </div>
-              <div className="admin-student-panel-actions">
-                <Link
-                  className="admin-register-student-button"
-                  href="/management/admin/students/register"
-                >
-                  + Register student
-                </Link>
-                <span className="admin-table-caption">{totalStudents} students</span>
-              </div>
+              {!isLoading && !loadError && (
+                <span className="admin-table-caption">{students.length} students</span>
+              )}
             </div>
 
-            <div className="teacher-student-groups">
-              {teachers.map((teacher) => (
-                <article className="teacher-student-card" key={teacher.id}>
-                  <div className="teacher-student-header">
-                    <div className="teacher-initials" aria-hidden="true">
-                      {teacher.name
-                        .split(" ")
-                        .map((part) => part[0])
-                        .join("")}
-                    </div>
-
-                    <div className="teacher-student-meta">
-                      <strong>{teacher.name}</strong>
-                      <small>{teacher.subject}</small>
-                    </div>
-
-                    <span className="student-count-badge">
-                      {teacher.assignedStudents.length}
-                      {teacher.assignedStudents.length === 1 ? " student" : " students"}
-                    </span>
-                  </div>
-
-                  <ul className="student-chip-list">
-                    {teacher.assignedStudents.map((student, index) => {
-                      const isEditing =
-                        editingStudent?.teacherId === teacher.id &&
-                        editingStudent.studentIndex === index;
-
-                      return (
-                        <li
-                          key={`${teacher.id}-${student}-${index}`}
-                          className={`student-chip-item${isEditing ? " editing" : ""}`}
-                        >
-                          {isEditing ? (
+            {accessError ? (
+              <p className="register-student-error" role="alert">{accessError}</p>
+            ) : isLoading ? (
+              <p role="status">Loading students…</p>
+            ) : loadError ? (
+              <p className="register-student-error" role="alert">{loadError}</p>
+            ) : students.length === 0 ? (
+              <p role="status">No students are registered yet. Use “Register student” to add the first one.</p>
+            ) : (
+              <div className="admin-table-scroll">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Student number</th>
+                      <th>Branch</th>
+                      <th>Teacher</th>
+                      <th>Level</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {students.map((student) => (
+                      <tr key={student.id}>
+                        <td>{student.fullName}</td>
+                        <td>{student.studentNumber}</td>
+                        <td>{branchById.get(student.branchId) || `Branch ${student.branchId}`}</td>
+                        <td>
+                          {editingStudentId === student.id ? (
                             <form
-                              className="student-edit-form"
-                              onSubmit={saveStudentMove}
+                              className="student-assignment-form"
+                              onSubmit={(event) => saveTeacherAssignment(event, student)}
                             >
-                              <span className="student-edit-name">{student}</span>
-                              <label>
-                                <span className="visually-hidden">
-                                  Move {student} to teacher
-                                </span>
-                                <select
-                                  required
-                                  value={targetTeacherId}
-                                  onChange={(event) =>
-                                    setTargetTeacherId(event.target.value)
-                                  }
-                                >
-                                  <option value="" disabled>
-                                    Select teacher
-                                  </option>
-                                  {teachers
-                                    .filter((candidate) => candidate.id !== teacher.id)
-                                    .map((candidate) => (
-                                      <option
-                                        key={candidate.id}
-                                        value={candidate.id}
-                                      >
-                                        {candidate.name}
-                                      </option>
-                                    ))}
-                                </select>
+                              <label className="visually-hidden" htmlFor={`teacher-${student.id}`}>
+                                Assign teacher to {student.fullName}
                               </label>
-                              <div className="student-edit-actions">
-                                <button type="submit" disabled={!targetTeacherId}>
-                                  Save
-                                </button>
-                                <button
-                                  type="button"
-                                  className="student-edit-cancel"
-                                  onClick={() => setEditingStudent(null)}
-                                >
-                                  Cancel
-                                </button>
-                              </div>
+                              <select
+                                id={`teacher-${student.id}`}
+                                value={targetTeacherId}
+                                onChange={(event) => setTargetTeacherId(event.target.value)}
+                                required
+                              >
+                                <option value="" disabled>Select teacher</option>
+                                {teachers
+                                  .filter(
+                                    (teacher) =>
+                                      teacher.branchId === student.branchId &&
+                                      teacher.id !== student.teacherId
+                                  )
+                                  .map((teacher) => (
+                                    <option key={teacher.id} value={teacher.id}>
+                                      {teacher.username}
+                                    </option>
+                                  ))}
+                              </select>
+                              <button type="submit" disabled={isSavingAssignment}>
+                                {isSavingAssignment ? "Saving…" : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                disabled={isSavingAssignment}
+                                onClick={() => {
+                                  setEditingStudentId(null);
+                                  setEditError("");
+                                }}
+                              >
+                                Cancel
+                              </button>
                             </form>
                           ) : (
                             <>
-                              <span className="student-list-number">
-                                {String(index + 1).padStart(2, "0")}
-                              </span>
-                              <span className="student-chip-name">
-                                <strong>{student}</strong>
-                                {getStudentProfile(teacher, index) && (
-                                  <small className="student-chip-details">
-                                    Age {getStudentProfile(teacher, index).age}
-                                    {" · "}
-                                    {getStudentProfile(teacher, index).level}
-                                  </small>
-                                )}
-                              </span>
-                              <button
-                                type="button"
-                                className="student-edit-button"
-                                onClick={() =>
-                                  openStudentEditor(teacher, index, student)
-                                }
-                                aria-label={`Edit ${student}`}
-                              >
-                                Edit student
-                              </button>
+                              {student.teacherId
+                                ? teacherById.get(student.teacherId) || `Teacher ${student.teacherId}`
+                                : "Not assigned"}
+                              {teachers.some(
+                                (teacher) =>
+                                  teacher.branchId === student.branchId &&
+                                  teacher.id !== student.teacherId
+                              ) && (
+                                <button
+                                  type="button"
+                                  className="student-assignment-edit"
+                                  onClick={() => {
+                                    setEditingStudentId(student.id);
+                                    setTargetTeacherId("");
+                                    setEditError("");
+                                  }}
+                                >
+                                  Change
+                                </button>
+                              )}
                             </>
                           )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </article>
-              ))}
-            </div>
+                        </td>
+                        <td>{student.currentLevel || "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {editError && <p className="register-student-error" role="alert">{editError}</p>}
           </section>
 
           <footer className="admin-footer">
             <span>Jafar Madrasa Management</span>
-            <span>{branch}</span>
+            <span>Student data is served by the backend API</span>
           </footer>
         </div>
       </main>

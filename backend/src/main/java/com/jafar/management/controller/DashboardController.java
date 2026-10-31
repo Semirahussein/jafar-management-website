@@ -4,6 +4,8 @@ import com.jafar.management.dto.enums.AttendanceStatus;
 import com.jafar.management.dto.enums.ReportStatus;
 import com.jafar.management.dto.enums.UserRole;
 import com.jafar.management.model.AppUser;
+import com.jafar.management.model.StudentAttendance;
+import com.jafar.management.model.TeacherAttendance;
 import com.jafar.management.repository.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/dashboard")
@@ -76,31 +79,30 @@ public class DashboardController {
                     progress, pendingReports
             );
         } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            long branchId = user.getBranchId();
-            long students = studentRepository.findAllByBranchId(branchId).size();
+            List<Long> branchIds = new ArrayList<>(user.getBranchIds());
+            long students = studentRepository.findAllByBranchIdIn(branchIds).size();
             long teachers = userRepository.findAll().stream()
-                    .filter(u -> u.getRole() == UserRole.QURAN_TEACHER && u.isActive() && branchId == u.getBranchId())
+                    .filter(u -> u.getRole() == UserRole.QURAN_TEACHER && u.isActive()
+                            && branchIds.contains(u.getBranchId()))
                     .count();
 
-            long sPresent = studentAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.PRESENT);
-            long sAbsent = studentAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.ABSENT);
-            long sLate = studentAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.LATE);
-            long sExcused = studentAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.EXCUSED);
-            long sTotal = studentAttendanceRepository.countByBranchIdAndDate(branchId, today);
+            List<StudentAttendance> studentRecords =
+                    studentAttendanceRepository.findAllByBranchIdInAndDateBetween(branchIds, today, today);
+            List<TeacherAttendance> teacherRecords =
+                    teacherAttendanceRepository.findAllByBranchIdInAndDateBetween(branchIds, today, today);
+            AttendanceStats studentStats = summarizeAttendance(
+                    studentRecords.stream().map(StudentAttendance::getStatus).toList());
+            AttendanceStats teacherStats = summarizeAttendance(
+                    teacherRecords.stream().map(TeacherAttendance::getStatus).toList());
 
-            long tPresent = teacherAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.PRESENT);
-            long tAbsent = teacherAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.ABSENT);
-            long tLate = teacherAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.LATE);
-            long tExcused = teacherAttendanceRepository.countByBranchIdAndDateAndStatus(branchId, today, AttendanceStatus.EXCUSED);
-            long tTotal = teacherAttendanceRepository.countByBranchIdAndDate(branchId, today);
-
-            List<Object> progress = (List<Object>)(List<?>) quranProgressRepository.findTop10ByBranchIdOrderByCreatedAtDesc(branchId);
-            long pendingReports = reportRepository.countByBranchIdAndStatus(branchId, ReportStatus.SUBMITTED);
+            List<Object> progress = (List<Object>)(List<?>)
+                    quranProgressRepository.findTop10ByBranchIdInOrderByCreatedAtDesc(branchIds);
+            long pendingReports = reportRepository.countByBranchIdInAndStatus(branchIds, ReportStatus.SUBMITTED);
 
             return new ManagerDashboardDto(
                     students, teachers,
-                    new AttendanceStats(sPresent, sAbsent, sLate, sExcused, sTotal),
-                    new AttendanceStats(tPresent, tAbsent, tLate, tExcused, tTotal),
+                    studentStats,
+                    teacherStats,
                     progress, pendingReports
             );
         } else {
@@ -123,5 +125,13 @@ public class DashboardController {
                     pendingReports
             );
         }
+    }
+
+    private AttendanceStats summarizeAttendance(List<AttendanceStatus> statuses) {
+        long present = statuses.stream().filter(status -> status == AttendanceStatus.PRESENT).count();
+        long absent = statuses.stream().filter(status -> status == AttendanceStatus.ABSENT).count();
+        long late = statuses.stream().filter(status -> status == AttendanceStatus.LATE).count();
+        long excused = statuses.stream().filter(status -> status == AttendanceStatus.EXCUSED).count();
+        return new AttendanceStats(present, absent, late, excused, statuses.size());
     }
 }

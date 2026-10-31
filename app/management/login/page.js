@@ -2,40 +2,55 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ApiError } from "@/app/lib/api";
+import { useAuth } from "../auth-provider";
 import "./login.css";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { signIn, signOut } = useAuth();
 
   const [showPassword, setShowPassword] = useState(false);
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [formError, setFormError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setFormError("");
+    setIsSubmitting(true);
 
-    console.log("Login button clicked");
-    console.log("Username:", username);
-    console.log("Password:", password);
+    try {
+      const user = await signIn(username, password);
+      const destinationByRole = {
+        ADMINISTRATOR: "/management/admin/dashboard",
+        BRANCH_MANAGER: "/management/manager/dashboard",
+        QURAN_TEACHER: "/management/teacher/dashboard",
+      };
+      const destination = destinationByRole[user.role];
 
+      if (!destination) {
+        signOut();
+        setFormError("This account role is not supported by the management portal.");
+        return;
+      }
 
-    // role checking and routing based on username and password
-
-   const normalizedUsername = username.trim().toLowerCase();
-
-if (normalizedUsername === "teacher" && password === "123456") {
-  router.push("/management/teacher/dashboard");
-} else if (normalizedUsername === "admin" && password === "123456") {
-  router.push("/management/admin/dashboard");
-} else if (normalizedUsername === "manager" && password === "123456") {
-  router.push("/management/manager/dashboard");
-} else if (normalizedUsername === "parent" && password === "123456") {
-  router.push("/management/parent/dashboard");
-} else {
-  alert("Invalid username or password.");
-}
+      router.push(destination);
+    } catch (error) {
+      signOut();
+      if (error instanceof ApiError && error.status === 401) {
+        setFormError("Incorrect username or password.");
+      } else {
+        setFormError(
+          error instanceof Error
+            ? error.message
+            : "Unable to connect to the backend."
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   
@@ -153,10 +168,7 @@ if (normalizedUsername === "teacher" && password === "123456") {
 
           {/* LOGIN FORM */}
 
-          <form
-            className="login-form"
-            onSubmit={handleSubmit}
-          >
+          <form className="login-form" onSubmit={handleSubmit}>
 
 
             {/* USERNAME */}
@@ -170,8 +182,9 @@ if (normalizedUsername === "teacher" && password === "123456") {
               <input
                 type="text"
                 id="email"
-                name="email"
-                placeholder="Enter your email or username"
+                name="username"
+                autoComplete="username"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(event) =>
                   setUsername(event.target.value)
@@ -218,6 +231,7 @@ if (normalizedUsername === "teacher" && password === "123456") {
                   }
                   id="password"
                   name="password"
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(event) =>
@@ -251,37 +265,24 @@ if (normalizedUsername === "teacher" && password === "123456") {
             </div>
 
 
-            {/* REMEMBER ME */}
-
-            <div className="login-options">
-
-              <label className="remember-me">
-
-                <input
-                  type="checkbox"
-                  name="remember"
-                />
-
-                <span>
-                  Remember me
-                </span>
-
-              </label>
-
-            </div>
-
-
             {/* LOGIN BUTTON */}
 
             <button
               type="submit"
               className="login-button"
+              disabled={isSubmitting}
             >
-              Sign In
+              {isSubmitting ? "Signing in…" : "Sign In"}
             </button>
 
           </form>
 
+
+          {formError && (
+            <p className="login-form-error" role="alert">
+              {formError}
+            </p>
+          )}
 
           {/* FOOTER */}
 

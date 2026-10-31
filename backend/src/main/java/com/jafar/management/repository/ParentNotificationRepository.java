@@ -12,6 +12,7 @@ import java.util.List;
 public interface ParentNotificationRepository extends JpaRepository<ParentNotification, Long> {
     List<ParentNotification> findAllByStudentId(Long studentId);
     List<ParentNotification> findAllByBranchId(Long branchId);
+    List<ParentNotification> findAllByBranchIdIn(java.util.Collection<Long> branchIds);
     List<ParentNotification> findAllByDeliveryStatus(DeliveryStatus status);
     List<ParentNotification> findAllByBranchIdAndCreatedAtBetween(Long branchId, LocalDateTime start, LocalDateTime end);
     List<ParentNotification> findAllByCreatedAtBetween(LocalDateTime start, LocalDateTime end);

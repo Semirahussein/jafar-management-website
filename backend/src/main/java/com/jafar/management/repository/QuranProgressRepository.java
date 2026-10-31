@@ -10,6 +10,7 @@ import java.util.List;
 @Repository
 public interface QuranProgressRepository extends JpaRepository<QuranProgress, Long> {
     List<QuranProgress> findAllByBranchId(Long branchId);
+    List<QuranProgress> findAllByBranchIdIn(java.util.Collection<Long> branchIds);
     List<QuranProgress> findAllByTeacherId(Long teacherId);
     List<QuranProgress> findAllByStudentId(Long studentId);
     List<QuranProgress> findAllByStudentIdOrderByDateDesc(Long studentId);
@@ -17,6 +18,7 @@ public interface QuranProgressRepository extends JpaRepository<QuranProgress, Lo
     List<QuranProgress> findAllByTeacherIdAndDateBetween(Long teacherId, LocalDate start, LocalDate end);
     List<QuranProgress> findAllByDateBetween(LocalDate start, LocalDate end);
     List<QuranProgress> findTop10ByBranchIdOrderByCreatedAtDesc(Long branchId);
+    List<QuranProgress> findTop10ByBranchIdInOrderByCreatedAtDesc(java.util.Collection<Long> branchIds);
     List<QuranProgress> findTop10ByOrderByCreatedAtDesc();
     List<QuranProgress> findTop10ByTeacherIdOrderByCreatedAtDesc(Long teacherId);
     long countByBranchId(Long branchId);

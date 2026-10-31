@@ -44,7 +44,7 @@ public class StudentController {
     public List<Student> list(@AuthenticationPrincipal AppUser user) {
         return switch (user.getRole()) {
             case ADMINISTRATOR -> students.findAll();
-            case BRANCH_MANAGER -> students.findAllByBranchId(user.getBranchId());
+            case BRANCH_MANAGER -> students.findAllByBranchIdIn(user.getBranchIds());
             case QURAN_TEACHER -> students.findAllByTeacherId(user.getId());
         };
     }
@@ -103,8 +103,9 @@ public class StudentController {
     }
 
     private void applyBranchScope(Student student, AppUser user) {
-        if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            student.setBranchId(user.getBranchId());
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You cannot manage students outside your assigned branches");
         }
     }
 
@@ -124,14 +125,14 @@ public class StudentController {
     }
 
     private void ensureCanView(Student student, AppUser user) {
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId()))
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId()))
             deny();
         if (user.getRole() == UserRole.QURAN_TEACHER && !user.getId().equals(student.getTeacherId()))
             deny();
     }
 
     private void ensureCanManage(Student student, AppUser user) {
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.getBranchId().equals(student.getBranchId()))
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(student.getBranchId()))
             deny();
     }
 

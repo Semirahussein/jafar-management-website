@@ -241,6 +241,86 @@
   outline-offset: 3px;
 }
 
+.student-assignment-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-assignment-form select,
+.student-assignment-form button,
+.student-assignment-edit {
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 1px solid #dbe7de;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--admin-green);
+  font: inherit;
+  font-size: 0.6rem;
+}
+
+.student-assignment-form button,
+.student-assignment-edit {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.student-assignment-form button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.student-assignment-edit {
+  min-height: 24px;
+  margin-left: 7px;
+}
+
+.branch-setup-form {
+  margin-top: 20px;
+}
+
+.branch-manager-panel {
+  margin-top: 18px;
+}
+
+.branch-checkboxes {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 0;
+  padding: 14px;
+  border: 1px solid #dfe5df;
+  border-radius: 7px;
+}
+
+.branch-checkboxes legend {
+  padding: 0 5px;
+  color: #35443a;
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.branch-checkboxes label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #35443a;
+  font-size: 0.73rem;
+}
+
+.branch-checkboxes input {
+  accent-color: #1f6240;
+}
+
+.branch-setup-notice {
+  margin-top: 16px;
+  color: #23633c;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .student-chip-name strong,
 .student-chip-details {
   display: block;

@@ -27,7 +27,9 @@ public class ReportController {
     }
 
     public record ReviewRequest(String reviewRemarks) {}
-    public record CreateReportRequest(String title, String content, ReportType reportType, java.time.LocalDate periodStart, java.time.LocalDate periodEnd) {}
+    public record CreateReportRequest(String title, String content, ReportType reportType,
+                                      java.time.LocalDate periodStart, java.time.LocalDate periodEnd,
+                                      Long branchId) {}
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'BRANCH_MANAGER', 'QURAN_TEACHER')")
@@ -39,9 +41,9 @@ public class ReportController {
             if (type != null) return reportRepository.findAllByReportType(type);
             return reportRepository.findAll();
         } else if (user.getRole() == UserRole.BRANCH_MANAGER) {
-            if (status != null) return reportRepository.findAllByBranchIdAndStatus(user.getBranchId(), status);
-            if (type != null) return reportRepository.findAllByBranchIdAndReportType(user.getBranchId(), type);
-            return reportRepository.findAllByBranchId(user.getBranchId());
+            if (status != null) return reportRepository.findAllByBranchIdInAndStatus(user.getBranchIds(), status);
+            if (type != null) return reportRepository.findAllByBranchIdInAndReportType(user.getBranchIds(), type);
+            return reportRepository.findAllByBranchIdIn(user.getBranchIds());
         } else {
             if (status != null) return reportRepository.findAllByAuthorIdAndStatus(user.getId(), status);
             return reportRepository.findAllByAuthorId(user.getId());
@@ -57,7 +59,7 @@ public class ReportController {
         if (user.getRole() == UserRole.QURAN_TEACHER && !report.getAuthorId().equals(user.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !report.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(report.getBranchId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         return report;
@@ -72,6 +74,18 @@ public class ReportController {
         if (user.getRole() == UserRole.BRANCH_MANAGER && request.reportType() != ReportType.MANAGER_TO_ADMIN) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Manager can only create MANAGER_TO_ADMIN reports");
         }
+        Long reportBranchId = request.branchId();
+        if (user.getRole() == UserRole.BRANCH_MANAGER) {
+            if (reportBranchId == null && user.getBranchIds().size() == 1) {
+                reportBranchId = user.getBranchId();
+            }
+            if (!user.canAccessBranch(reportBranchId)) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Select one of your assigned branches for this report");
+            }
+        } else {
+            reportBranchId = user.getBranchId();
+        }
 
         Report report = new Report();
         report.setTitle(request.title());
@@ -80,7 +94,7 @@ public class ReportController {
         report.setPeriodStart(request.periodStart());
         report.setPeriodEnd(request.periodEnd());
         report.setAuthorId(user.getId());
-        report.setBranchId(user.getBranchId());
+        report.setBranchId(reportBranchId);
         report.setStatus(ReportStatus.DRAFT);
         
         return reportRepository.save(report);
@@ -128,7 +142,7 @@ public class ReportController {
         if (user.getRole() == UserRole.BRANCH_MANAGER && report.getReportType() != ReportType.TEACHER_TO_MANAGER) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Manager can only review TEACHER_TO_MANAGER reports");
         }
-        if (user.getRole() == UserRole.BRANCH_MANAGER && !report.getBranchId().equals(user.getBranchId())) {
+        if (user.getRole() == UserRole.BRANCH_MANAGER && !user.canAccessBranch(report.getBranchId())) {
              throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         if (user.getRole() == UserRole.ADMINISTRATOR && report.getReportType() != ReportType.MANAGER_TO_ADMIN) {

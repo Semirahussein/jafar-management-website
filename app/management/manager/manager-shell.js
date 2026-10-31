@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "../auth-provider";
 
 const navigation = [
   { href: "/management/manager/dashboard", label: "Dashboard", icon: "⌂" },
@@ -13,6 +14,7 @@ const navigation = [
 
 export default function ManagerShell({ children }) {
   const pathname = usePathname();
+  const { signOut, user } = useAuth();
 
   return (
     <div className="manager-layout">
@@ -49,11 +51,11 @@ export default function ManagerShell({ children }) {
         <div className="manager-sidebar-footer">
           <span className="manager-avatar" aria-hidden="true">M</span>
           <span>
-            <strong>Manager</strong>
-            <small>All branches</small>
+            <strong>{user?.username || "Manager"}</strong>
+            <small>{user?.branchIds?.length || 0} assigned branches</small>
           </span>
         </div>
-        <Link className="manager-logout" href="/management/login">
+        <Link className="manager-logout" href="/management/login" onClick={signOut}>
           <span className="manager-nav-icon" aria-hidden="true">↪</span>
           Logout
         </Link>

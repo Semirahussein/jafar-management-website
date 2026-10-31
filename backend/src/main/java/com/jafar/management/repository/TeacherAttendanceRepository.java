@@ -10,6 +10,7 @@ public interface TeacherAttendanceRepository extends JpaRepository<TeacherAttend
     List<TeacherAttendance> findAllByBranchId(Long branchId);
     List<TeacherAttendance> findAllByTeacherId(Long teacherId);
     List<TeacherAttendance> findAllByBranchIdAndDateBetween(Long branchId, LocalDate start, LocalDate end);
+    List<TeacherAttendance> findAllByBranchIdInAndDateBetween(java.util.Collection<Long> branchIds, LocalDate start, LocalDate end);
     List<TeacherAttendance> findAllByDateBetween(LocalDate start, LocalDate end);
     boolean existsByTeacherIdAndDate(Long teacherId, LocalDate date);
     long countByBranchIdAndDateAndStatus(Long branchId, LocalDate date, AttendanceStatus status);

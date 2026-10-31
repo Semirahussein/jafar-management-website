@@ -83,6 +83,27 @@ mvn spring-boot:run
 The backend starts at **`http://localhost:8080`**.
 
 ### 3. Frontend Setup
+Create a `.env.local` file in the project root so the frontend knows where the backend runs:
+```env
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+```
+
+The management login now verifies credentials against `GET /api/auth/me`; the authenticated user's credentials are kept in React memory for the current browser session. The first connected workflow is student registration and listing. The registration page loads branches and teachers from the backend, then submits the backend's student fields to `POST /api/students`. The student directory reads `GET /api/students`. An administrator must create a branch and (optionally) Quran-teacher user before they can be selected in the form.
+
+The reusable API helper is in `app/lib/api.js`. For example, a client component can load students with:
+```js
+import { apiRequest } from "@/app/lib/api";
+
+const students = await apiRequest("/api/students", {
+  auth: { username, password },
+});
+```
+It also supports JSON writes. The helper sends HTTP Basic credentials only with the request, does not save them, avoids caching API responses, and throws an `ApiError` for unsuccessful HTTP responses. Keep credentials in memory while using this approach; do not put them in a public environment variable or browser storage.
+
+The administrator Branches page is available at `/management/admin/branches`. Create both branch records there, then create one branch-manager account and select both branches for it. Existing manager accounts can also be updated to have access to multiple selected branches. Teachers remain assigned to exactly one branch.
+
+The backend allows the local frontend origin (`http://localhost:3000`) and the `Authorization` header for API calls. Set `FRONTEND_ORIGIN` on the backend if the frontend uses a different origin. Do not expose API credentials over plain HTTP outside local development.
+
 ```bash
 npm install
 npm run dev
@@ -96,6 +117,7 @@ The frontend starts at **`http://localhost:3000`**.
 | Method | Endpoint | Description | Permitted Roles |
 |---|---|---|---|
 | `GET` | `/api/health` | Health check endpoint | Public |
+| `GET` | `/api/auth/me` | Return the authenticated user's profile and role | Authenticated |
 | `GET / POST` | `/api/branches` | List / Create branches | Authenticated / Admin |
 | `GET / PUT / DELETE` | `/api/branches/{id}` | Get / Update / Delete branch | Scoped / Admin, Manager / Admin |
 | `GET / POST` | `/api/users` | List / Create users | Admin |

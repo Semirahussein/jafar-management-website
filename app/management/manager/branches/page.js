@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useManagerData } from "../manager-data";
 
 export default function ManagerBranchesPage() {
-  const { branches } = useManagerData();
+  const { branches, error, isLoading } = useManagerData();
 
   return (
     <div className="manager-page">
@@ -18,10 +18,22 @@ export default function ManagerBranchesPage() {
         <div className="manager-panel-heading">
           <div>
             <h2>All branches</h2>
-            <p>{branches.length} branch{branches.length === 1 ? "" : "es"} listed</p>
+            <p>
+              {isLoading
+                ? "Loading assigned branches…"
+                : `${branches.length} branch${branches.length === 1 ? "" : "es"} assigned to your account`}
+            </p>
           </div>
         </div>
-        <div className="manager-table-wrap">
+        {error ? (
+          <p className="manager-empty" role="alert">{error}</p>
+        ) : isLoading ? (
+          <p role="status">Loading branches…</p>
+        ) : branches.length === 0 ? (
+          <p className="manager-empty" role="status">
+            No branches are assigned to this manager account. Ask an administrator to assign them.
+          </p>
+        ) : <div className="manager-table-wrap">
           <table className="manager-table">
             <thead>
               <tr>
@@ -50,7 +62,7 @@ export default function ManagerBranchesPage() {
               ))}
             </tbody>
           </table>
-        </div>
+        </div>}
       </section>
     </div>
   );

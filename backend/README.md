@@ -43,6 +43,9 @@ The application runs on `http://localhost:8080`.
 ## 🔐 Authentication & Roles
 
 All endpoints (except `GET /api/health`) require **HTTP Basic Authentication**.
+`GET /api/auth/me` returns the authenticated user's ID, username, role, and branch ID; the frontend uses it to verify credentials and choose the correct role dashboard.
+For local development, the API permits browser requests from `http://localhost:3000`. Set the backend `FRONTEND_ORIGIN` environment variable if the frontend uses another origin.
+Administrators can create branches with `POST /api/branches`. A branch manager can be assigned to multiple branches using the `branchIds` array when creating or updating a user; manager endpoints then scope records to all assigned branches. Quran teachers must still be assigned to exactly one branch. Existing accounts assigned through the older `branchId` field keep their current single-branch access.
 
 ### Available Roles:
 - `ADMINISTRATOR` — Organization-wide visibility across all branches.
