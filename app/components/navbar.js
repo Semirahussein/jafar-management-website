@@ -76,6 +76,11 @@ export default function Navbar() {
         >
           {labels.amharic}
         </Link>
+
+        <Link href="/management">
+          Staff Portal
+        </Link>
+
       </div>
 
       <Link href="/management/login" className="navbar-apply">
@@ -109,7 +114,14 @@ export default function Navbar() {
             {labels.contact}
           </Link>
           <Link
-            href="/management/login"
+            href="/management"
+            onClick={() => setMenuOpen(false)}
+          >
+            Staff Portal
+          </Link>
+
+          <Link
+            href="/apply"
             className="mobile-apply"
             onClick={() => setMenuOpen(false)}
           >

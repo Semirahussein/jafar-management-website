@@ -50,6 +50,18 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- Report exports -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.4.1</version>
+        </dependency>
+
         <!-- Security - authentication and role-based access -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -68,6 +80,25 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- In-memory database for integration/persistence tests, and for the disposable
+             "e2e" runtime profile (application-e2e.properties) used by Playwright E2E runs.
+             Scope is "runtime" (not "test") so it is also present when the app is started
+             normally (mvn spring-boot:run / the packaged jar) with -Dspring-boot.run.profiles=e2e
+             or SPRING_PROFILES_ACTIVE=e2e; it is otherwise unused since the default profile's
+             datasource is MySQL. -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring Security test support (SecurityMockMvcRequestPostProcessors, etc.) -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
 

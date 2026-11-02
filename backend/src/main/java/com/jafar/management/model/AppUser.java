@@ -1,23 +1,18 @@
 package com.jafar.management.model;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jafar.management.dto.enums.UserRole;
-import jakarta.persistence.CollectionTable;
+import com.jafar.management.dto.enums.UserRoleConverter;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.Convert;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,16 +31,20 @@ public class AppUser implements UserDetails {
     @Column(nullable = false, length = 100)
     private String passwordHash;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UserRoleConverter.class)
     @Column(nullable = false, length = 30)
     private UserRole role;
 
     private Long branchId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "app_user_additional_branches", joinColumns = @JoinColumn(name = "app_user_id"))
-    @Column(name = "branch_id", nullable = false)
-    private Set<Long> additionalBranchIds = new LinkedHashSet<>();
+    @Column(length = 150)
+    private String fullName;
+
+    @Column(length = 254)
+    private String email;
+
+    @Column(length = 30)
+    private String phone;
 
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean active = true;
@@ -65,26 +64,22 @@ public class AppUser implements UserDetails {
     public UserRole getRole() { return role; }
     public Long getBranchId() { return branchId; }
     public Set<Long> getBranchIds() {
-        Set<Long> branchIds = new LinkedHashSet<>();
-        if (branchId != null) branchIds.add(branchId);
-        branchIds.addAll(additionalBranchIds);
-        return branchIds;
+        return branchId == null ? Set.of() : Set.of(branchId);
     }
+    public boolean canAccessBranch(Long requestedBranchId) {
+        return requestedBranchId != null && requestedBranchId.equals(branchId);
+    }
+    public String getFullName() { return fullName; }
+    public String getEmail() { return email; }
+    public String getPhone() { return phone; }
     public boolean isActive() { return active; }
     public void setUsername(String username) { this.username = username; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public void setRole(UserRole role) { this.role = role; }
     public void setBranchId(Long branchId) { this.branchId = branchId; }
-    public void setBranchIds(java.util.Collection<Long> values) {
-        Set<Long> branchIds = new LinkedHashSet<>(values);
-        branchId = branchIds.stream().findFirst().orElse(null);
-        additionalBranchIds.clear();
-        additionalBranchIds.addAll(branchIds);
-        if (branchId != null) additionalBranchIds.remove(branchId);
-    }
-    public boolean canAccessBranch(Long requestedBranchId) {
-        return requestedBranchId != null && getBranchIds().contains(requestedBranchId);
-    }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setEmail(String email) { this.email = email; }
+    public void setPhone(String phone) { this.phone = phone; }
     public void setActive(boolean active) { this.active = active; }
 
     @Override @JsonIgnore

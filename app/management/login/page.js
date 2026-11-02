@@ -24,9 +24,9 @@ export default function LoginPage() {
     try {
       const user = await signIn(username, password);
       const destinationByRole = {
-        ADMINISTRATOR: "/management/admin/dashboard",
-        BRANCH_MANAGER: "/management/manager/dashboard",
-        QURAN_TEACHER: "/management/teacher/dashboard",
+        ADMINISTRATOR: "/management",
+        BRANCH_MANAGER: "/management",
+        QURAN_TEACHER: "/management",
       };
       const destination = destinationByRole[user.role];
 
@@ -211,7 +211,7 @@ export default function LoginPage() {
                   className="forgot-password"
                   onClick={() =>
                     alert(
-                      "Password reset will be connected later."
+                    "Password reset is not available. Contact your manager to set a new password."
                     )
                   }
                 >

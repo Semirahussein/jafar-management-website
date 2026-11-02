@@ -14,8 +14,8 @@ export default function AdminBranchesPage() {
   const [branches, setBranches] = useState([]);
   const [managers, setManagers] = useState([]);
   const [selectedManagerId, setSelectedManagerId] = useState("");
-  const [assignmentBranchIds, setAssignmentBranchIds] = useState([]);
-  const [newManagerBranchIds, setNewManagerBranchIds] = useState([]);
+  const [assignmentBranchId, setAssignmentBranchId] = useState("");
+  const [newManagerBranchId, setNewManagerBranchId] = useState("");
   const [branchName, setBranchName] = useState("");
   const [branchAddress, setBranchAddress] = useState("");
   const [managerUsername, setManagerUsername] = useState("");
@@ -88,14 +88,6 @@ export default function AdminBranchesPage() {
       ? "Only administrators can create branches and assign branch managers."
       : "";
 
-  const toggleBranch = (setCurrent, branchId) => {
-    setCurrent((selected) =>
-      selected.includes(branchId)
-        ? selected.filter((id) => id !== branchId)
-        : [...selected, branchId]
-    );
-  };
-
   const handleCreateBranch = async (event) => {
     event.preventDefault();
     setError("");
@@ -126,8 +118,8 @@ export default function AdminBranchesPage() {
     event.preventDefault();
     setError("");
     setNotice("");
-    if (newManagerBranchIds.length === 0) {
-      setError("Select at least one branch for this manager.");
+    if (!newManagerBranchId) {
+      setError("Select the manager's branch.");
       return;
     }
 
@@ -140,14 +132,14 @@ export default function AdminBranchesPage() {
           username: managerUsername.trim(),
           password: managerPassword,
           role: "BRANCH_MANAGER",
-          branchIds: newManagerBranchIds,
+          branchId: Number(newManagerBranchId),
         },
       });
       setManagerUsername("");
       setManagerPassword("");
-      setNewManagerBranchIds([]);
+      setNewManagerBranchId("");
       await refreshData();
-      setNotice("Branch manager created and assigned to the selected branches.");
+      setNotice("Branch admin created and assigned to one branch.");
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -167,8 +159,8 @@ export default function AdminBranchesPage() {
       setError("Choose a branch manager.");
       return;
     }
-    if (assignmentBranchIds.length === 0) {
-      setError("A branch manager must be assigned to at least one branch.");
+    if (!assignmentBranchId) {
+      setError("Choose one branch for this branch admin.");
       return;
     }
 
@@ -180,12 +172,12 @@ export default function AdminBranchesPage() {
         body: {
           username: selectedManager.username,
           role: selectedManager.role,
-          branchIds: assignmentBranchIds,
+          branchId: Number(assignmentBranchId),
           active: selectedManager.active,
         },
       });
       await refreshData();
-      setNotice("Branch assignments updated.");
+      setNotice("Branch admin assignment updated.");
     } catch (requestError) {
       setError(
         requestError instanceof ApiError && requestError.status === 401
@@ -328,13 +320,13 @@ export default function AdminBranchesPage() {
           <section className="admin-panel branch-manager-panel">
             <div className="admin-panel-heading">
               <div>
-                <h2>Create a manager for selected branches</h2>
+                <h2>Create a branch admin</h2>
                 <p>The password must be at least 12 characters.</p>
               </div>
             </div>
             <form className="register-student-form" onSubmit={handleCreateManager}>
               <label>
-                Manager username
+                Branch admin username
                 <input
                   autoComplete="username"
                   maxLength={80}
@@ -355,24 +347,22 @@ export default function AdminBranchesPage() {
                   required
                 />
               </label>
-              <fieldset className="branch-checkboxes">
-                <legend>Branches this manager can access</legend>
-                {branches.map((branch) => (
-                  <label key={branch.id}>
-                    <input
-                      type="checkbox"
-                      checked={newManagerBranchIds.includes(branch.id)}
-                      onChange={() =>
-                        toggleBranch(setNewManagerBranchIds, branch.id)
-                      }
-                    />
-                    {branch.name}
-                  </label>
-                ))}
-              </fieldset>
+              <label>
+                Assigned branch
+                <select
+                  required
+                  value={newManagerBranchId}
+                  onChange={(event) => setNewManagerBranchId(event.target.value)}
+                >
+                  <option value="" disabled>Choose a branch</option>
+                  {branches.filter((branch) => branch.active).map((branch) => (
+                    <option key={branch.id} value={branch.id}>{branch.name}</option>
+                  ))}
+                </select>
+              </label>
               <div className="register-student-actions">
                 <button type="submit" disabled={isSaving || branches.length === 0}>
-                  {isSaving ? "Saving…" : "Create manager"}
+                  {isSaving ? "Saving…" : "Create branch admin"}
                 </button>
               </div>
             </form>
@@ -381,16 +371,16 @@ export default function AdminBranchesPage() {
           <section className="admin-panel branch-manager-panel">
             <div className="admin-panel-heading">
               <div>
-                <h2>Update manager branch access</h2>
-                <p>One manager can be assigned to both branches.</p>
+                <h2>Update branch admin assignment</h2>
+                <p>Each branch admin is assigned to exactly one branch.</p>
               </div>
             </div>
             {managers.length === 0 ? (
-              <p>Create a branch manager above to manage branch access.</p>
+              <p>Create a branch admin above to manage their branch assignment.</p>
             ) : (
               <form className="register-student-form" onSubmit={handleSaveAssignment}>
                 <label>
-                  Branch manager
+                  Branch admin
                   <select
                     value={selectedManagerId}
                     onChange={(event) => {
@@ -399,7 +389,7 @@ export default function AdminBranchesPage() {
                       const manager = managers.find(
                         (candidate) => candidate.id === Number(managerId)
                       );
-                      setAssignmentBranchIds(manager?.branchIds || []);
+                      setAssignmentBranchId(manager?.branchId ? String(manager.branchId) : "");
                     }}
                     required
                   >
@@ -412,25 +402,25 @@ export default function AdminBranchesPage() {
                   </select>
                 </label>
                 {selectedManager && (
-                  <fieldset className="branch-checkboxes">
-                    <legend>Branches this manager can access</legend>
-                    {branches.map((branch) => (
-                      <label key={branch.id}>
-                        <input
-                          type="checkbox"
-                          checked={assignmentBranchIds.includes(branch.id)}
-                          onChange={() =>
-                            toggleBranch(setAssignmentBranchIds, branch.id)
-                          }
-                        />
-                        {branch.name}
-                      </label>
-                    ))}
-                  </fieldset>
+                  <label>
+                    Assigned branch
+                    <select
+                      required
+                      value={assignmentBranchId}
+                      onChange={(event) => setAssignmentBranchId(event.target.value)}
+                    >
+                      <option value="" disabled>Choose a branch</option>
+                      {branches.map((branch) => (
+                        <option key={branch.id} value={branch.id}>
+                          {branch.name}{branch.active ? "" : " (inactive)"}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 )}
                 <div className="register-student-actions">
                   <button type="submit" disabled={isSaving || !selectedManager}>
-                    {isSaving ? "Saving…" : "Save manager access"}
+                    {isSaving ? "Saving…" : "Save assignment"}
                   </button>
                 </div>
               </form>

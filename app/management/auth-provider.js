@@ -13,13 +13,21 @@ export function AuthProvider({ children }) {
       credentials: session?.credentials ?? null,
       user: session?.user ?? null,
       async signIn(username, password) {
-        const credentials = { username: username.trim(), password };
-        const user = await apiRequest("/api/auth/me", { auth: credentials });
-        setSession({ credentials, user });
+        await apiRequest("/api/auth/csrf");
+        const user = await apiRequest("/api/auth/login", {
+          method: "POST",
+          body: { username: username.trim(), password, rememberMe: false },
+        });
+        setSession({ credentials: {}, user });
         return user;
       },
-      signOut() {
-        setSession(null);
+      async signOut() {
+        try {
+          await apiRequest("/api/auth/csrf");
+          await apiRequest("/api/auth/logout", { method: "POST" });
+        } finally {
+          setSession(null);
+        }
       },
     }),
     [session]
