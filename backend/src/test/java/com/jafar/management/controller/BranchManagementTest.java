@@ -43,11 +43,12 @@ class BranchManagementTest {
     }
 
     @Test
-    void assignedManagerCanOnlyListAndUpdateItsOwnBranchStatus() throws Exception {
+    void assignedManagerOnlyListsAndViewsItsOwnBranch() throws Exception {
         Branch branch = branch(4L, "North", true);
         Branch other = branch(5L, "South", true);
         BranchRepository branches = proxy(BranchRepository.class, (proxy, method, args) -> switch (method.getName()) {
             case "findById" -> Optional.ofNullable(((Long) args[0]) == 4L ? branch : other);
+            case "findAllById" -> List.of(branch);
             case "existsByNameIgnoreCaseAndIdNot" -> false;
             case "save" -> args[0];
             default -> null;
@@ -57,8 +58,11 @@ class BranchManagementTest {
 
         assertEquals(List.of(branch), controller.list(manager));
         assertThrows(ResponseStatusException.class, () -> controller.get(5L, manager));
-        Branch changed = controller.update(4L, new BranchController.BranchRequest("North Branch", null, false), manager);
-        assertFalse(changed.isActive());
+        // Branch updates are now administrator-only (@PreAuthorize("hasRole('ADMINISTRATOR')")
+        // on BranchController.update); real enforcement is covered by
+        // BranchSecurityIntegrationTest.branchManagerCannotUpdateEvenOwnBranch,
+        // since a plain-object unit test like this one never runs the real
+        // Spring Security method-security interceptor.
     }
 
     @Test
