@@ -78,16 +78,30 @@ class StudentIntegrationTest extends IntegrationTestBase {
 
     // STUDENT-005
     @Test
-    void managerCreateAutoScopesToOwnBranch() throws Exception {
+    void managerCreateSucceedsWithOwnBranch() throws Exception {
         Branch managerBranch = createBranch("manager-scope-branch");
-        Branch otherBranch = createBranch("manager-scope-other");
         LoggedInUser manager = loginAsNewUser(UserRole.BRANCH_MANAGER, managerBranch.getId());
 
         mockMvc.perform(post("/api/students").session(manager.session()).with(withCsrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(studentPayload("Scoped Student", unique("STD"), otherBranch.getId(), null)))
+                        .content(studentPayload("Scoped Student", unique("STD"), managerBranch.getId(), null)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.branchId").value(managerBranch.getId()));
+    }
+
+    // STUDENT-005 (follow-up): branch scoping is now enforced, not silently
+    // auto-corrected - AppUser.canAccessBranch() rejects a mismatched branchId
+    // outright rather than overriding it to the manager's own branch.
+    @Test
+    void managerCreateRejectsOtherBranch() throws Exception {
+        Branch managerBranch = createBranch("manager-reject-branch");
+        Branch otherBranch = createBranch("manager-reject-other");
+        LoggedInUser manager = loginAsNewUser(UserRole.BRANCH_MANAGER, managerBranch.getId());
+
+        mockMvc.perform(post("/api/students").session(manager.session()).with(withCsrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(studentPayload("Rejected Student", unique("STD"), otherBranch.getId(), null)))
+                .andExpect(status().isForbidden());
     }
 
     // STUDENT-006

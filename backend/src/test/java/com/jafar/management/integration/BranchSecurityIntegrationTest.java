@@ -126,6 +126,19 @@ class BranchSecurityIntegrationTest extends IntegrationTestBase {
                 .andExpect(status().isBadRequest());
     }
 
+    // BRANCH-007 (follow-up): branch updates are administrator-only; a Branch
+    // Manager can no longer update even their own branch's details.
+    @Test
+    void branchManagerCannotUpdateEvenOwnBranch() throws Exception {
+        Branch own = createBranch("mgr-cannot-update-own");
+        LoggedInUser manager = loginAsNewUser(UserRole.BRANCH_MANAGER, own.getId());
+
+        mockMvc.perform(put("/api/branches/" + own.getId()).session(manager.session()).with(withCsrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Renamed Branch\"}"))
+                .andExpect(status().isForbidden());
+    }
+
     // SECURITY-002
     @Test
     void teacherCannotCreateBranchEvenWithValidCsrf() throws Exception {
