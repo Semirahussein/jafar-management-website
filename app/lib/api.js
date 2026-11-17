@@ -1,11 +1,5 @@
-export class ApiError extends Error {
-  constructor(message, status, data = null) {
-    super(message);
-    this.name = "ApiError";
-    this.status = status;
-    this.data = data;
-  }
-}
+export { ApiError } from "./api-error";
+import { ApiError } from "./api-error";
 
 function createApiError(body, status) {
   return new ApiError(
@@ -15,7 +9,26 @@ function createApiError(body, status) {
   );
 }
 
+// Frontend-only demo mode: no backend deployed yet, so every call is served
+// from an in-browser fixture "fake backend" (see demo-api.js) instead of a
+// real fetch. Off by default; only on when NEXT_PUBLIC_DEMO_MODE=true is set
+// at build time, and inert otherwise - no behavior change for real backend use.
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
+function createDemoApiClient() {
+  async function api(path, options = {}) {
+    const { demoRequest } = await import("./demo-api");
+    return demoRequest(path, options);
+  }
+  api.download = async function download() {
+    throw new ApiError("Report export isn't available in this frontend-only demo.", 400);
+  };
+  return api;
+}
+
 export function createApiClient() {
+  if (DEMO_MODE) return createDemoApiClient();
+
   async function api(path, options = {}) {
     const method = (options.method || "GET").toUpperCase();
     const csrf = typeof document === "undefined"
